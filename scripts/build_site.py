@@ -1,5 +1,6 @@
 """Build a self-contained HTML reader from faithfully extracted PDF content."""
 import json
+import base64
 from html import escape
 from pathlib import Path
 
@@ -27,7 +28,7 @@ def build():
                 last_subcategory = subcategory
             verse_id = f'{section_id}-verse-{verse_index:02d}'
             ref = escape(verse['reference'])
-            parts.append(f'<article class="verse" id="{verse_id}" aria-labelledby="{verse_id}-title"><div class="verse-heading"><h3 id="{verse_id}-title">{ref}</h3><a class="verse-link" href="#{verse_id}" aria-label="{ref} 바로가기">#</a></div>')
+            parts.append(f'<article class="verse" id="{verse_id}" aria-labelledby="{verse_id}-title"><div class="verse-heading"><h3 id="{verse_id}-title">{ref}</h3><div class="verse-tools"><button class="copy-verse" type="button" aria-label="{ref} 말씀 전체 복사 및 선택" aria-pressed="false" hidden>복사</button><a class="verse-link" href="#{verse_id}" aria-label="{ref} 바로가기">#</a></div></div>')
             for passage in verse['passages']:
                 number = escape(str(passage['number']))
                 text = escape(passage['text'])
@@ -37,6 +38,9 @@ def build():
         sections.append('\n'.join(parts))
     template = (ROOT / 'site.template.html').read_text(encoding='utf-8')
     result = template.replace('@@TOC@@', '\n'.join(toc)).replace('@@CONTENT@@', '\n'.join(sections))
+    result = result.replace('@@WALLPAPER_SCRIPT@@', (ROOT / 'wallpaper.js').read_text(encoding='utf-8'))
+    background = base64.b64encode((ROOT / 'wallpaper-background.png').read_bytes()).decode('ascii')
+    result = result.replace('@@WALLPAPER_BACKGROUND@@', 'data:image/png;base64,' + background)
     result = result.replace('@@TOPIC_COUNT@@', str(len(categories))).replace('@@VERSE_COUNT@@', str(verse_count))
     assert '@@' not in result, 'Unresolved template placeholder'
     (ROOT / 'index.html').write_text(result, encoding='utf-8')
