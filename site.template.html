@@ -16,6 +16,7 @@
     a { color:inherit; text-decoration:none; }
     button, summary { -webkit-tap-highlight-color:transparent; }
     button { font:inherit; }
+    button:not(:disabled), .button { touch-action:manipulation; }
     button:focus-visible, a:focus-visible, summary:focus-visible { outline:3px solid #6b85c0; outline-offset:4px; }
     .skip { position:fixed; top:8px; left:8px; transform:translateY(-200%); z-index:20; background:var(--blue); color:#fff; padding:12px; }
     .skip:focus { transform:none; }
@@ -55,7 +56,13 @@
     h2 { font-size:1.75rem; line-height:1.5; letter-spacing:-.045em; margin:0; color:var(--blue); }
     .subcategory { display:flex; align-items:center; gap:14px; margin:35px 0 5px; font-size:.9375rem; font-weight:600; color:#53647f; }
     .subcategory::after { content:""; flex:1; height:1px; background:var(--line); }
-    .verse { position:relative; padding:27px 0 30px; border-bottom:1px solid #e9edf3; scroll-margin-top:100px; }
+    .verse { position:relative; isolation:isolate; padding:27px 0 30px; border-bottom:1px solid #e9edf3; scroll-margin-top:100px; }
+    .verse.can-copy { cursor:pointer; }
+    .verse.is-selected::before { content:""; position:absolute; z-index:-1; inset:4px -12px; background:#f0f4fc; border:1px solid #bdcce3; border-radius:10px; pointer-events:none; }
+    .verse-tools { display:flex; align-items:center; gap:8px; flex:none; }
+    .copy-verse { padding:8px 10px; min-height:44px; border:0; border-radius:6px; background:transparent; color:#52688d; font-size:.875rem; cursor:pointer; }
+    .copy-verse:hover { background:var(--wash); }
+    .copy-verse[aria-pressed="true"] { color:var(--blue); font-weight:700; }
     .verse:last-child { border-bottom:0; }
     .verse-heading { display:flex; justify-content:space-between; align-items:baseline; gap:16px; margin-bottom:14px; }
     .verse h3 { margin:0; font-size:1rem; letter-spacing:-.025em; font-weight:650; color:var(--blue); }
@@ -68,6 +75,31 @@
     .topic-bottom a { font-size:.875rem; color:var(--muted); padding:10px 0 10px 20px; }
     footer { margin-top:54px; padding-top:28px; border-top:1px solid var(--line); font-size:.875rem; color:var(--muted); line-height:1.9; }
     footer p { margin:0; }
+    .reading-hint { margin:17px 0 0; color:var(--muted); font-size:.875rem; line-height:1.8; }
+    body.has-selection { padding-bottom:var(--selection-space,110px); }
+    .selection-bar { position:fixed; z-index:20; bottom:0; left:0; right:0; background:#fff; border-top:1px solid #ced8e7; box-shadow:0 -5px 22px #1b325210; padding:14px 20px calc(14px + env(safe-area-inset-bottom)); }
+    .selection-inner { display:flex; align-items:center; gap:14px; max-width:720px; margin:auto; }
+    .selection-info { min-width:0; flex:1; }
+    .selection-info small { display:block; color:var(--muted); font-size:.75rem; }
+    .selection-info strong { display:block; font-size:1rem; }
+    .button { display:inline-flex; justify-content:center; align-items:center; gap:8px; min-height:46px; padding:11px 18px; border:1px solid var(--blue); border-radius:8px; background:var(--blue); color:#fff; font-size:.9375rem; line-height:1.5; font-weight:600; text-align:center; cursor:pointer; }
+    .button.secondary { background:#fff; color:var(--blue); border-color:#c5d0e1; }
+    .button:disabled { opacity:.55; cursor:wait; }
+    .icon-button { display:grid; place-items:center; width:44px; min-height:44px; flex:none; border:0; border-radius:8px; color:var(--muted); background:transparent; font-size:1.6rem; cursor:pointer; }
+    .icon-button:hover { background:var(--wash); }
+    .toast { position:fixed; z-index:30; left:50%; transform:translateX(-50%); bottom:calc(var(--selection-space,0px) + 18px); width:max-content; max-width:calc(100% - 32px); border-radius:10px; padding:12px 18px; background:#202e46; color:#fff; font-size:.875rem; box-shadow:0 4px 18px #16213420; pointer-events:none; }
+    .reader-dialog { width:min(480px,calc(100% - 24px)); max-height:calc(100dvh - 24px); margin:auto; padding:22px; border:1px solid #dde3ec; border-radius:18px; color:var(--ink); background:#fff; overflow:auto; overscroll-behavior:contain; }
+    .reader-dialog::backdrop { background:#101d36aa; }
+    .dialog-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .dialog-heading h2 { font-size:1.25rem; }
+    .dialog-reference { margin:2px 0 15px; color:var(--muted); font-size:.875rem; }
+    .wallpaper-preview { display:block; width:auto; height:auto; max-width:100%; max-height:49dvh; margin:0 auto; border-radius:10px; background:#243b5c; box-shadow:0 8px 24px #14243e20; }
+    .dialog-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+    .dialog-actions .button { flex:1; }
+    .save-help { color:var(--muted); font-size:.875rem; line-height:1.75; margin:13px 0 0; }
+    .generation-status { padding:48px 12px; text-align:center; font-size:1rem; color:var(--muted); }
+    .manual-copy-text { width:100%; height:240px; margin-top:14px; border:1px solid var(--line); border-radius:8px; padding:12px; font:1rem/1.8 inherit; resize:vertical; }
+    body.dialog-open { overflow:hidden; }
     .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
     @media (max-width:900px) { .layout { gap:36px; padding:0 28px; grid-template-columns:235px minmax(0,1fr); } .topbar-inner { padding:20px 28px; } h1 { font-size:2rem; } }
     @media (max-width:720px) {
@@ -104,10 +136,16 @@
       .passage { line-height:1.95; }
       .topic + .topic { margin-top:22px; }
       footer { margin-top:36px; }
+      .selection-bar { padding-left:16px; padding-right:10px; }
+      .selection-inner { gap:8px; }
+      .selection-inner .button { padding:11px 12px; flex:none; }
+      .selection-info strong { font-size:.9375rem; }
+      .reader-dialog { padding:18px; }
     }
     @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } * { transition:none!important; } }
     @media print {
-      .sidebar,.mobile-nav,.font-controls,.topic-bottom,.verse-link,.skip { display:none!important; }
+      .sidebar,.mobile-nav,.font-controls,.topic-bottom,.verse-tools,.skip,.reading-hint,.selection-bar,.toast,.reader-dialog { display:none!important; }
+      body.has-selection { padding-bottom:0; } .verse.is-selected::before { display:none; }
       .layout { display:block; padding:0; } .topbar { display:none; } main { max-width:none; }
       .intro { padding-top:0; } .topic { break-before:page; padding-top:0; } .verse { break-inside:avoid; }
       .passage { font-size:12pt; } body { color:#000; }
@@ -144,11 +182,38 @@
           </div>
         </div>
         <span id="font-status" class="sr-only" role="status"></span>
+        <p class="reading-hint" hidden>말씀을 누르면 전체가 복사됩니다.<br>선택한 말씀으로 휴대폰 배경화면도 만들어 보세요.</p>
       </header>
       @@CONTENT@@
       <footer><p>주제별 말씀 모음</p><p>원본 PDF의 주제와 말씀 순서를 따릅니다.</p><p><a href="#top">처음으로 ↑</a></p></footer>
     </main>
   </div>
+  <div class="selection-bar" id="selection-bar" hidden>
+    <div class="selection-inner">
+      <div class="selection-info"><small>선택한 말씀</small><strong id="selected-reference"></strong></div>
+      <button type="button" class="button" id="make-wallpaper">이미지 생성</button>
+      <button type="button" class="icon-button" id="clear-selection" aria-label="말씀 선택 해제">×</button>
+    </div>
+  </div>
+  <div class="toast" id="copy-status" role="status" aria-live="polite" hidden></div>
+  <dialog class="reader-dialog" id="wallpaper-dialog" aria-labelledby="wallpaper-title">
+    <div class="dialog-heading"><h2 id="wallpaper-title">말씀 배경화면</h2><button type="button" class="icon-button" id="close-wallpaper" aria-label="배경화면 닫기">×</button></div>
+    <p class="dialog-reference" id="wallpaper-reference"></p>
+    <p class="generation-status" id="generation-status" role="status">이미지를 만드는 중입니다…</p>
+    <img class="wallpaper-preview" id="wallpaper-preview" alt="선택한 말씀이 적힌 세로 배경화면" hidden>
+    <div id="wallpaper-result" hidden>
+      <div class="dialog-actions"><a class="button" id="download-wallpaper" download>PNG 저장</a><button class="button secondary" type="button" id="share-wallpaper" hidden>공유·사진에 저장</button></div>
+      <p class="save-help">1080 × 1920 · 세로 배경화면<br>저장이 안 되면 이미지를 길게 눌러 저장하세요. 저장한 사진은 휴대폰에서 배경화면으로 설정할 수 있습니다.</p>
+      <p class="save-help" id="share-status" role="status"></p>
+    </div>
+  </dialog>
+  <dialog class="reader-dialog" id="manual-copy-dialog" aria-labelledby="manual-copy-title">
+    <div class="dialog-heading"><h2 id="manual-copy-title">말씀 복사</h2><button type="button" class="icon-button" id="close-manual-copy" aria-label="복사 안내 닫기">×</button></div>
+    <p class="save-help">브라우저에서 자동 복사를 허용하지 않았습니다. 아래 말씀을 길게 눌러 전체 선택 후 복사해 주세요.</p>
+    <textarea class="manual-copy-text" id="manual-copy-text" aria-label="복사할 말씀 전체" readonly></textarea>
+  </dialog>
+  <script type="text/plain" id="wallpaper-background-data">@@WALLPAPER_BACKGROUND@@</script>
+  <script>@@WALLPAPER_SCRIPT@@</script>
   <script>
     (() => {
       'use strict';
@@ -205,6 +270,180 @@
         if (!scheduled) { scheduled = true; requestAnimationFrame(markCurrentTopic); }
       }, {passive:true});
       markCurrentTopic();
+
+      const selectionBar = document.getElementById('selection-bar');
+      const selectionLabel = document.getElementById('selected-reference');
+      const toast = document.getElementById('copy-status');
+      const wallpaperDialog = document.getElementById('wallpaper-dialog');
+      const manualDialog = document.getElementById('manual-copy-dialog');
+      const preview = document.getElementById('wallpaper-preview');
+      const result = document.getElementById('wallpaper-result');
+      const generationStatus = document.getElementById('generation-status');
+      const download = document.getElementById('download-wallpaper');
+      const share = document.getElementById('share-wallpaper');
+      let selected = null;
+      let copyRequest = 0;
+      let generation = 0;
+      let imageURL = null;
+      let imageFile = null;
+      let toastTimeout;
+
+      function notify(message) {
+        clearTimeout(toastTimeout);
+        toast.textContent = message;
+        toast.hidden = false;
+        toastTimeout = setTimeout(() => { toast.hidden = true; }, 2600);
+      }
+      function scriptureFromArticle(article) {
+        const reference = article.querySelector('h3').textContent.trim();
+        const passages = [...article.querySelectorAll('.passage')].map(paragraph => {
+          const copy = paragraph.cloneNode(true);
+          const number = copy.querySelector('.verse-number');
+          const verseNumber = number.textContent.trim();
+          number.remove();
+          return { number: verseNumber, text: copy.textContent.trim() };
+        });
+        return { reference, passages, text: reference + '\n' + passages.map(p => p.number + ' ' + p.text).join('\n') };
+      }
+      function legacyCopy(text) {
+        const previousFocus = document.activeElement;
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.readOnly = true;
+        textarea.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px;';
+        document.body.append(textarea);
+        textarea.focus({ preventScroll:true });
+        textarea.select();
+        textarea.setSelectionRange(0, text.length);
+        let copied = false;
+        try { copied = document.execCommand('copy'); } catch (_) {}
+        textarea.remove();
+        previousFocus?.focus({ preventScroll:true });
+        return copied;
+      }
+      async function copyScripture(scripture, request) {
+        let copied = false;
+        try {
+          // Must be called in the original tap, before any other asynchronous work.
+          if (navigator.clipboard?.writeText && window.isSecureContext) {
+            await navigator.clipboard.writeText(scripture.text);
+            copied = true;
+          }
+        } catch (_) {}
+        if (request !== copyRequest) return;
+        if (!copied) copied = legacyCopy(scripture.text);
+        if (copied) notify(scripture.reference + ' 전체를 복사했습니다.');
+        else {
+          document.getElementById('manual-copy-text').value = scripture.text;
+          manualDialog.showModal();
+          document.body.classList.add('dialog-open');
+          document.getElementById('manual-copy-text').select();
+        }
+      }
+      function updateBarHeight() {
+        document.documentElement.style.setProperty('--selection-space', selectionBar.hidden ? '0px' : selectionBar.offsetHeight + 'px');
+      }
+      if ('ResizeObserver' in window) new ResizeObserver(updateBarHeight).observe(selectionBar);
+      document.querySelector('.reading-hint').hidden = false;
+      document.querySelectorAll('.verse').forEach(article => {
+        const button = article.querySelector('.copy-verse');
+        button.hidden = false;
+        article.classList.add('can-copy');
+        article.addEventListener('click', event => {
+          if (event.target.closest('a')) return;
+          if (!event.target.closest('.copy-verse') && !window.getSelection().isCollapsed) return;
+          if (selected) {
+            selected.article.classList.remove('is-selected');
+            selected.article.querySelector('.copy-verse').setAttribute('aria-pressed', 'false');
+          }
+          const scripture = scriptureFromArticle(article);
+          selected = { article, scripture };
+          article.classList.add('is-selected');
+          button.setAttribute('aria-pressed', 'true');
+          selectionLabel.textContent = scripture.reference;
+          selectionBar.hidden = false;
+          document.body.classList.add('has-selection');
+          updateBarHeight();
+          copyScripture(scripture, ++copyRequest);
+        });
+      });
+      document.getElementById('clear-selection').addEventListener('click', () => {
+        ++copyRequest;
+        if (selected) {
+          selected.article.classList.remove('is-selected');
+          const button = selected.article.querySelector('.copy-verse');
+          button.setAttribute('aria-pressed', 'false');
+          button.focus({ preventScroll:true });
+        }
+        selected = null;
+        selectionBar.hidden = true;
+        toast.hidden = true;
+        document.body.classList.remove('has-selection');
+        updateBarHeight();
+      });
+      function releaseImage() {
+        preview.removeAttribute('src');
+        download.removeAttribute('href');
+        if (imageURL) URL.revokeObjectURL(imageURL);
+        imageURL = null;
+        imageFile = null;
+      }
+      document.getElementById('make-wallpaper').addEventListener('click', async () => {
+        if (!selected) return;
+        ++copyRequest;
+        const scripture = selected.scripture;
+        const currentGeneration = ++generation;
+        releaseImage();
+        preview.hidden = true;
+        result.hidden = true;
+        share.hidden = true;
+        generationStatus.hidden = false;
+        generationStatus.textContent = '이미지를 만드는 중입니다…';
+        document.getElementById('share-status').textContent = '';
+        document.getElementById('wallpaper-reference').textContent = scripture.reference;
+        wallpaperDialog.showModal();
+        document.body.classList.add('dialog-open');
+        toast.hidden = true;
+        try {
+          const rendered = await window.ScriptureWallpaper.render(scripture);
+          if (currentGeneration !== generation || !wallpaperDialog.open) return;
+          imageURL = URL.createObjectURL(rendered.blob);
+          const filename = scripture.reference.replace(/[^가-힣a-zA-Z0-9-]/g, '_') + '_배경화면.png';
+          preview.src = imageURL;
+          preview.alt = scripture.reference + ' 말씀 전체가 기록된 휴대폰 배경화면';
+          download.href = imageURL;
+          download.download = filename;
+          try {
+            imageFile = new File([rendered.blob], filename, { type:'image/png' });
+            share.hidden = !(navigator.share && navigator.canShare?.({ files:[imageFile] }));
+          } catch (_) { imageFile = null; }
+          preview.hidden = false;
+          generationStatus.hidden = true;
+          result.hidden = false;
+        } catch (error) {
+          if (currentGeneration !== generation || !wallpaperDialog.open) return;
+          generationStatus.textContent = '이미지를 만들지 못했습니다. 창을 닫고 다시 시도해 주세요.';
+        }
+      });
+      share.addEventListener('click', async () => {
+        if (!imageFile) return;
+        const sharedFile = imageFile;
+        try {
+          await navigator.share({ files:[sharedFile], title:'말씀 배경화면' });
+          if (imageFile === sharedFile) document.getElementById('share-status').textContent = '';
+        } catch (error) {
+          if (imageFile !== sharedFile) return;
+          if (error.name !== 'AbortError') document.getElementById('share-status').textContent = '공유를 열지 못했습니다. PNG 저장 또는 이미지 길게 누르기를 이용해 주세요.';
+        }
+      });
+      document.getElementById('close-wallpaper').addEventListener('click', () => wallpaperDialog.close());
+      document.getElementById('close-manual-copy').addEventListener('click', () => manualDialog.close());
+      wallpaperDialog.addEventListener('close', () => {
+        ++generation;
+        releaseImage();
+        document.body.classList.toggle('dialog-open', manualDialog.open);
+      });
+      manualDialog.addEventListener('close', () => document.body.classList.toggle('dialog-open', wallpaperDialog.open));
     })();
   </script>
 </body>
