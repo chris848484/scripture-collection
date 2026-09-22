@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#243b65">
+  <meta name="description" content="주제별로 모은 성경 말씀. 마음에 와닿는 말씀을 골라 읽고 적어 보세요.">
+  <title>주제별 말씀 모음</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23243b65'/%3E%3Cpath d='M9 9h6v16H9zm8 0h6v16h-6z' fill='%23fff'/%3E%3Cpath d='M9 7h6v2H9zm8 0h6v2h-6z' fill='%23bfcdf0'/%3E%3C/svg%3E">
+  <style>
+    :root { color-scheme: light; --ink:#202c40; --muted:#5c677a; --blue:#243b65; --line:#dee4ed; --wash:#f3f6fb; --verse-size:1.1875rem; }
+    * { box-sizing:border-box; }
+    [hidden] { display:none!important; }
+    html { scroll-behavior:smooth; scroll-padding-top:6rem; }
+    body { margin:0; color:var(--ink); background:#fff; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif; line-height:1.6; word-break:keep-all; overflow-wrap:anywhere; }
+    a { color:inherit; text-decoration:none; }
+    button, summary { -webkit-tap-highlight-color:transparent; }
+    button { font:inherit; }
+    button:focus-visible, a:focus-visible, summary:focus-visible { outline:3px solid #6b85c0; outline-offset:4px; }
+    .skip { position:fixed; top:8px; left:8px; transform:translateY(-200%); z-index:20; background:var(--blue); color:#fff; padding:12px; }
+    .skip:focus { transform:none; }
+    .topbar { border-bottom:1px solid var(--line); }
+    .topbar-inner { max-width:1200px; margin:auto; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:22px 40px; }
+    .brand { display:flex; align-items:center; gap:12px; font-size:1rem; font-weight:700; letter-spacing:-.03em; }
+    .brand svg { flex:none; }
+    .collection-label { color:var(--muted); font-size:.875rem; }
+    .layout { display:grid; grid-template-columns:270px minmax(0,1fr); gap:68px; max-width:1200px; margin:0 auto; padding:0 40px; }
+    .sidebar { align-self:start; position:sticky; top:24px; max-height:calc(100dvh - 48px); overflow:auto; padding:38px 0; scrollbar-width:thin; }
+    .nav-heading { margin:0 0 22px; display:flex; align-items:center; justify-content:space-between; color:var(--blue); font-size:.9375rem; font-weight:700; }
+    .nav-heading span { font-weight:400; font-size:.875rem; color:var(--muted); }
+    .toc { list-style:none; margin:0; padding:0; }
+    .toc a { display:flex; gap:13px; align-items:baseline; padding:11px 12px; border-radius:6px; font-size:.9375rem; line-height:1.65; transition:background .15s; }
+    .toc a:hover { background:var(--wash); }
+    .toc a[aria-current="location"] { background:#eaf0fa; color:var(--blue); font-weight:700; }
+    .toc-number { color:#667995; font-size:.75rem; font-variant-numeric:tabular-nums; flex:0 0 19px; }
+    .sidebar-note { margin:28px 12px 0; padding-top:20px; border-top:1px solid var(--line); font-size:.875rem; color:var(--muted); line-height:1.8; }
+    main { min-width:0; max-width:720px; padding-bottom:72px; }
+    .intro { padding:46px 0 32px; border-bottom:1px solid var(--line); }
+    .eyebrow { margin:0 0 10px; color:#536b93; font-size:.75rem; font-weight:700; letter-spacing:.15em; }
+    h1 { margin:0; font-size:2.4rem; font-weight:700; line-height:1.35; letter-spacing:-.055em; }
+    .intro-text { margin:15px 0 24px; color:var(--muted); font-size:1rem; line-height:1.8; }
+    .intro-bottom { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+    .stats { color:var(--muted); font-size:.875rem; }
+    .stats strong { color:var(--blue); font-weight:600; }
+    .font-controls { display:flex; gap:4px; align-items:center; }
+    .font-label { margin-right:8px; color:var(--muted); font-size:.875rem; }
+    .font-controls button { display:grid; place-items:center; min-width:44px; height:44px; border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--blue); cursor:pointer; font-size:1rem; }
+    .font-controls button:disabled { opacity:.35; cursor:default; }
+    .font-controls button:not(:disabled):hover { background:var(--wash); }
+    .mobile-nav { display:none; }
+    .topic { padding-top:42px; scroll-margin-top:24px; }
+    .topic + .topic { margin-top:28px; border-top:1px solid var(--line); }
+    .topic-header { margin-bottom:28px; }
+    .chapter-number { display:block; font-size:.8125rem; color:#5b7194; font-weight:600; letter-spacing:.13em; margin-bottom:9px; }
+    h2 { font-size:1.75rem; line-height:1.5; letter-spacing:-.045em; margin:0; color:var(--blue); }
+    .subcategory { display:flex; align-items:center; gap:14px; margin:35px 0 5px; font-size:.9375rem; font-weight:600; color:#53647f; }
+    .subcategory::after { content:""; flex:1; height:1px; background:var(--line); }
+    .verse { position:relative; padding:27px 0 30px; border-bottom:1px solid #e9edf3; scroll-margin-top:100px; }
+    .verse:last-child { border-bottom:0; }
+    .verse-heading { display:flex; justify-content:space-between; align-items:baseline; gap:16px; margin-bottom:14px; }
+    .verse h3 { margin:0; font-size:1rem; letter-spacing:-.025em; font-weight:650; color:var(--blue); }
+    .verse-link { font-size:.8125rem; color:#677589; opacity:0; padding:4px 6px; }
+    .verse:hover .verse-link, .verse:focus-within .verse-link { opacity:1; }
+    .passage { margin:0; font-family:"Noto Serif KR","Batang","바탕",Georgia,serif; font-size:var(--verse-size); line-height:2; letter-spacing:-.015em; }
+    .passage + .passage { margin-top:10px; }
+    .verse-number { display:inline; margin-right:9px; font-size:.7em; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; font-weight:600; color:#7786a1; vertical-align:super; line-height:0; }
+    .topic-bottom { display:flex; justify-content:flex-end; padding-top:12px; }
+    .topic-bottom a { font-size:.875rem; color:var(--muted); padding:10px 0 10px 20px; }
+    footer { margin-top:54px; padding-top:28px; border-top:1px solid var(--line); font-size:.875rem; color:var(--muted); line-height:1.9; }
+    footer p { margin:0; }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    @media (max-width:900px) { .layout { gap:36px; padding:0 28px; grid-template-columns:235px minmax(0,1fr); } .topbar-inner { padding:20px 28px; } h1 { font-size:2rem; } }
+    @media (max-width:720px) {
+      html { scroll-padding-top:5rem; }
+      .topbar-inner { padding:18px 22px; }
+      .brand { font-size:.9375rem; gap:10px; }
+      .collection-label { font-size:.75rem; }
+      .layout { display:block; padding:0; }
+      .sidebar { display:none; }
+      main { max-width:none; padding:0 24px 48px; }
+      .intro { padding:30px 0 27px; }
+      h1 { font-size:2.05rem; }
+      .intro-text { margin-top:14px; margin-bottom:20px; font-size:.9375rem; }
+      .eyebrow { font-size:.75rem; }
+      .stats { font-size:.875rem; }
+      .font-label { display:none; }
+      .mobile-nav { display:block; position:sticky; top:0; z-index:10; background:#f3f6fb; border-bottom:1px solid #dce3ee; }
+      .mobile-nav details { max-width:720px; margin:auto; }
+      .mobile-nav summary { list-style:none; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:17px 24px; cursor:pointer; font-size:.9375rem; color:var(--blue); font-weight:650; }
+      .mobile-nav summary::-webkit-details-marker { display:none; }
+      .mobile-nav summary::after { content:"＋"; font-size:1.1rem; line-height:1; }
+      .mobile-nav details[open] summary::after { content:"−"; }
+      .mobile-nav summary small { color:var(--muted); font-size:.8125rem; font-weight:400; margin-left:auto; }
+      .mobile-nav .toc { max-height:65dvh; overflow:auto; overscroll-behavior:contain; padding:0 14px 18px; }
+      .mobile-nav .toc a { padding:12px 10px; }
+      .topic { padding-top:32px; scroll-margin-top:10px; }
+      .topic-header { margin-bottom:22px; }
+      .chapter-number { font-size:.75rem; }
+      h2 { font-size:1.6rem; }
+      .subcategory { font-size:.875rem; margin-top:28px; }
+      .verse { padding:24px 0 27px; }
+      .verse-link { opacity:1; min-height:44px; margin:-8px -6px -8px 0; display:flex; align-items:center; }
+      .verse-heading { margin-bottom:12px; }
+      .passage { line-height:1.95; }
+      .topic + .topic { margin-top:22px; }
+      footer { margin-top:36px; }
+    }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } * { transition:none!important; } }
+    @media print {
+      .sidebar,.mobile-nav,.font-controls,.topic-bottom,.verse-link,.skip { display:none!important; }
+      .layout { display:block; padding:0; } .topbar { display:none; } main { max-width:none; }
+      .intro { padding-top:0; } .topic { break-before:page; padding-top:0; } .verse { break-inside:avoid; }
+      .passage { font-size:12pt; } body { color:#000; }
+    }
+  </style>
+</head>
+<body id="top">
+  <a class="skip" href="#reading">말씀 본문으로 건너뛰기</a>
+  <header class="topbar"><div class="topbar-inner">
+    <a class="brand" href="#top" aria-label="주제별 말씀 모음 처음으로">
+      <svg width="27" height="27" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#243b65"/><path d="M9 9h6v16H9zm8 0h6v16h-6z" fill="#fff"/><path d="M9 7h6v2H9zm8 0h6v2h-6z" fill="#bfcdf0"/></svg>
+      주제별 말씀 모음
+    </a><span class="collection-label">읽고, 마음에 새기다</span>
+  </div></header>
+  <nav class="mobile-nav" aria-label="모바일 주제 목차"><details id="mobile-toc">
+    <summary>주제 목차 <small>@@TOPIC_COUNT@@개의 주제</small></summary>
+    <ol class="toc">@@TOC@@</ol>
+  </details></nav>
+  <div class="layout">
+    <aside class="sidebar"><nav aria-label="주제 목차">
+      <h2 class="nav-heading">주제 목차 <span>@@TOPIC_COUNT@@개의 주제</span></h2>
+      <ol class="toc">@@TOC@@</ol>
+    </nav><p class="sidebar-note">그날 마음에 와닿는 말씀을<br>자유롭게 골라 읽고 적어 보세요.</p></aside>
+    <main id="reading">
+      <header class="intro">
+        <p class="eyebrow">SCRIPTURE COLLECTION</p>
+        <h1>주제별 말씀 모음</h1>
+        <p class="intro-text">그날 마음에 와닿는 말씀을<br>자유롭게 골라 읽고 적어 보세요.</p>
+        <div class="intro-bottom"><span class="stats"><strong>@@TOPIC_COUNT@@</strong>개의 주제 &nbsp;·&nbsp; <strong>@@VERSE_COUNT@@</strong>개의 말씀</span>
+          <div class="font-controls" role="group" aria-label="말씀 글자 크기" hidden>
+            <span class="font-label">글자 크기</span>
+            <button id="font-smaller" type="button" aria-label="말씀 글자 작게">가−</button>
+            <button id="font-larger" type="button" aria-label="말씀 글자 크게">가＋</button>
+          </div>
+        </div>
+        <span id="font-status" class="sr-only" role="status"></span>
+      </header>
+      @@CONTENT@@
+      <footer><p>주제별 말씀 모음</p><p>원본 PDF의 주제와 말씀 순서를 따릅니다.</p><p><a href="#top">처음으로 ↑</a></p></footer>
+    </main>
+  </div>
+  <script>
+    (() => {
+      'use strict';
+      const sizes = [1.0625, 1.1875, 1.375, 1.5625];
+      let sizeIndex = 1;
+      try {
+        const saved = localStorage.getItem('scripture-font-size');
+        if (saved !== null && /^[0-3]$/.test(saved)) sizeIndex = Number(saved);
+      } catch (_) {}
+      const smaller = document.getElementById('font-smaller');
+      const larger = document.getElementById('font-larger');
+      const applySize = (announce) => {
+        document.documentElement.style.setProperty('--verse-size', sizes[sizeIndex] + 'rem');
+        smaller.disabled = sizeIndex === 0;
+        larger.disabled = sizeIndex === sizes.length - 1;
+        if (announce) document.getElementById('font-status').textContent = '글자 크기 ' + (sizeIndex + 1) + '단계';
+      };
+      document.querySelector('.font-controls').hidden = false;
+      const changeSize = (delta) => {
+        sizeIndex = Math.max(0, Math.min(sizes.length - 1, sizeIndex + delta));
+        applySize(true);
+        try { localStorage.setItem('scripture-font-size', String(sizeIndex)); } catch (_) {}
+      };
+      smaller.addEventListener('click', () => changeSize(-1));
+      larger.addEventListener('click', () => changeSize(1));
+      applySize(false);
+      const mobileToc = document.getElementById('mobile-toc');
+      document.querySelectorAll('.toc a').forEach(link => {
+        link.addEventListener('click', () => { mobileToc.open = false; });
+      });
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && mobileToc.open) {
+          mobileToc.open = false;
+          mobileToc.querySelector('summary').focus();
+        }
+      });
+      const topics = [...document.querySelectorAll('.topic')];
+      const tocLinks = [...document.querySelectorAll('.toc a')];
+      let scheduled = false;
+      const markCurrentTopic = () => {
+        const marker = Math.min(180, window.innerHeight / 3);
+        let current = topics[0];
+        for (const topic of topics) {
+          if (topic.getBoundingClientRect().top <= marker) current = topic;
+          else break;
+        }
+        for (const link of tocLinks) {
+          if (link.hash === '#' + current.id) link.setAttribute('aria-current', 'location');
+          else link.removeAttribute('aria-current');
+        }
+        scheduled = false;
+      };
+      window.addEventListener('scroll', () => {
+        if (!scheduled) { scheduled = true; requestAnimationFrame(markCurrentTopic); }
+      }, {passive:true});
+      markCurrentTopic();
+    })();
+  </script>
+</body>
+</html>

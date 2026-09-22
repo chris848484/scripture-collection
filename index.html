@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#243b65">
+  <meta name="description" content="주제별로 모은 성경 말씀. 마음에 와닿는 말씀을 골라 읽고 적어 보세요.">
+  <title>주제별 말씀 모음</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23243b65'/%3E%3Cpath d='M9 9h6v16H9zm8 0h6v16h-6z' fill='%23fff'/%3E%3Cpath d='M9 7h6v2H9zm8 0h6v2h-6z' fill='%23bfcdf0'/%3E%3C/svg%3E">
+  <style>
+    :root { color-scheme: light; --ink:#202c40; --muted:#5c677a; --blue:#243b65; --line:#dee4ed; --wash:#f3f6fb; --verse-size:1.1875rem; }
+    * { box-sizing:border-box; }
+    [hidden] { display:none!important; }
+    html { scroll-behavior:smooth; scroll-padding-top:6rem; }
+    body { margin:0; color:var(--ink); background:#fff; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif; line-height:1.6; word-break:keep-all; overflow-wrap:anywhere; }
+    a { color:inherit; text-decoration:none; }
+    button, summary { -webkit-tap-highlight-color:transparent; }
+    button { font:inherit; }
+    button:focus-visible, a:focus-visible, summary:focus-visible { outline:3px solid #6b85c0; outline-offset:4px; }
+    .skip { position:fixed; top:8px; left:8px; transform:translateY(-200%); z-index:20; background:var(--blue); color:#fff; padding:12px; }
+    .skip:focus { transform:none; }
+    .topbar { border-bottom:1px solid var(--line); }
+    .topbar-inner { max-width:1200px; margin:auto; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:22px 40px; }
+    .brand { display:flex; align-items:center; gap:12px; font-size:1rem; font-weight:700; letter-spacing:-.03em; }
+    .brand svg { flex:none; }
+    .collection-label { color:var(--muted); font-size:.875rem; }
+    .layout { display:grid; grid-template-columns:270px minmax(0,1fr); gap:68px; max-width:1200px; margin:0 auto; padding:0 40px; }
+    .sidebar { align-self:start; position:sticky; top:24px; max-height:calc(100dvh - 48px); overflow:auto; padding:38px 0; scrollbar-width:thin; }
+    .nav-heading { margin:0 0 22px; display:flex; align-items:center; justify-content:space-between; color:var(--blue); font-size:.9375rem; font-weight:700; }
+    .nav-heading span { font-weight:400; font-size:.875rem; color:var(--muted); }
+    .toc { list-style:none; margin:0; padding:0; }
+    .toc a { display:flex; gap:13px; align-items:baseline; padding:11px 12px; border-radius:6px; font-size:.9375rem; line-height:1.65; transition:background .15s; }
+    .toc a:hover { background:var(--wash); }
+    .toc a[aria-current="location"] { background:#eaf0fa; color:var(--blue); font-weight:700; }
+    .toc-number { color:#667995; font-size:.75rem; font-variant-numeric:tabular-nums; flex:0 0 19px; }
+    .sidebar-note { margin:28px 12px 0; padding-top:20px; border-top:1px solid var(--line); font-size:.875rem; color:var(--muted); line-height:1.8; }
+    main { min-width:0; max-width:720px; padding-bottom:72px; }
+    .intro { padding:46px 0 32px; border-bottom:1px solid var(--line); }
+    .eyebrow { margin:0 0 10px; color:#536b93; font-size:.75rem; font-weight:700; letter-spacing:.15em; }
+    h1 { margin:0; font-size:2.4rem; font-weight:700; line-height:1.35; letter-spacing:-.055em; }
+    .intro-text { margin:15px 0 24px; color:var(--muted); font-size:1rem; line-height:1.8; }
+    .intro-bottom { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+    .stats { color:var(--muted); font-size:.875rem; }
+    .stats strong { color:var(--blue); font-weight:600; }
+    .font-controls { display:flex; gap:4px; align-items:center; }
+    .font-label { margin-right:8px; color:var(--muted); font-size:.875rem; }
+    .font-controls button { display:grid; place-items:center; min-width:44px; height:44px; border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--blue); cursor:pointer; font-size:1rem; }
+    .font-controls button:disabled { opacity:.35; cursor:default; }
+    .font-controls button:not(:disabled):hover { background:var(--wash); }
+    .mobile-nav { display:none; }
+    .topic { padding-top:42px; scroll-margin-top:24px; }
+    .topic + .topic { margin-top:28px; border-top:1px solid var(--line); }
+    .topic-header { margin-bottom:28px; }
+    .chapter-number { display:block; font-size:.8125rem; color:#5b7194; font-weight:600; letter-spacing:.13em; margin-bottom:9px; }
+    h2 { font-size:1.75rem; line-height:1.5; letter-spacing:-.045em; margin:0; color:var(--blue); }
+    .subcategory { display:flex; align-items:center; gap:14px; margin:35px 0 5px; font-size:.9375rem; font-weight:600; color:#53647f; }
+    .subcategory::after { content:""; flex:1; height:1px; background:var(--line); }
+    .verse { position:relative; padding:27px 0 30px; border-bottom:1px solid #e9edf3; scroll-margin-top:100px; }
+    .verse:last-child { border-bottom:0; }
+    .verse-heading { display:flex; justify-content:space-between; align-items:baseline; gap:16px; margin-bottom:14px; }
+    .verse h3 { margin:0; font-size:1rem; letter-spacing:-.025em; font-weight:650; color:var(--blue); }
+    .verse-link { font-size:.8125rem; color:#677589; opacity:0; padding:4px 6px; }
+    .verse:hover .verse-link, .verse:focus-within .verse-link { opacity:1; }
+    .passage { margin:0; font-family:"Noto Serif KR","Batang","바탕",Georgia,serif; font-size:var(--verse-size); line-height:2; letter-spacing:-.015em; }
+    .passage + .passage { margin-top:10px; }
+    .verse-number { display:inline; margin-right:9px; font-size:.7em; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; font-weight:600; color:#7786a1; vertical-align:super; line-height:0; }
+    .topic-bottom { display:flex; justify-content:flex-end; padding-top:12px; }
+    .topic-bottom a { font-size:.875rem; color:var(--muted); padding:10px 0 10px 20px; }
+    footer { margin-top:54px; padding-top:28px; border-top:1px solid var(--line); font-size:.875rem; color:var(--muted); line-height:1.9; }
+    footer p { margin:0; }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    @media (max-width:900px) { .layout { gap:36px; padding:0 28px; grid-template-columns:235px minmax(0,1fr); } .topbar-inner { padding:20px 28px; } h1 { font-size:2rem; } }
+    @media (max-width:720px) {
+      html { scroll-padding-top:5rem; }
+      .topbar-inner { padding:18px 22px; }
+      .brand { font-size:.9375rem; gap:10px; }
+      .collection-label { font-size:.75rem; }
+      .layout { display:block; padding:0; }
+      .sidebar { display:none; }
+      main { max-width:none; padding:0 24px 48px; }
+      .intro { padding:30px 0 27px; }
+      h1 { font-size:2.05rem; }
+      .intro-text { margin-top:14px; margin-bottom:20px; font-size:.9375rem; }
+      .eyebrow { font-size:.75rem; }
+      .stats { font-size:.875rem; }
+      .font-label { display:none; }
+      .mobile-nav { display:block; position:sticky; top:0; z-index:10; background:#f3f6fb; border-bottom:1px solid #dce3ee; }
+      .mobile-nav details { max-width:720px; margin:auto; }
+      .mobile-nav summary { list-style:none; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:17px 24px; cursor:pointer; font-size:.9375rem; color:var(--blue); font-weight:650; }
+      .mobile-nav summary::-webkit-details-marker { display:none; }
+      .mobile-nav summary::after { content:"＋"; font-size:1.1rem; line-height:1; }
+      .mobile-nav details[open] summary::after { content:"−"; }
+      .mobile-nav summary small { color:var(--muted); font-size:.8125rem; font-weight:400; margin-left:auto; }
+      .mobile-nav .toc { max-height:65dvh; overflow:auto; overscroll-behavior:contain; padding:0 14px 18px; }
+      .mobile-nav .toc a { padding:12px 10px; }
+      .topic { padding-top:32px; scroll-margin-top:10px; }
+      .topic-header { margin-bottom:22px; }
+      .chapter-number { font-size:.75rem; }
+      h2 { font-size:1.6rem; }
+      .subcategory { font-size:.875rem; margin-top:28px; }
+      .verse { padding:24px 0 27px; }
+      .verse-link { opacity:1; min-height:44px; margin:-8px -6px -8px 0; display:flex; align-items:center; }
+      .verse-heading { margin-bottom:12px; }
+      .passage { line-height:1.95; }
+      .topic + .topic { margin-top:22px; }
+      footer { margin-top:36px; }
+    }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } * { transition:none!important; } }
+    @media print {
+      .sidebar,.mobile-nav,.font-controls,.topic-bottom,.verse-link,.skip { display:none!important; }
+      .layout { display:block; padding:0; } .topbar { display:none; } main { max-width:none; }
+      .intro { padding-top:0; } .topic { break-before:page; padding-top:0; } .verse { break-inside:avoid; }
+      .passage { font-size:12pt; } body { color:#000; }
+    }
+  </style>
+</head>
+<body id="top">
+  <a class="skip" href="#reading">말씀 본문으로 건너뛰기</a>
+  <header class="topbar"><div class="topbar-inner">
+    <a class="brand" href="#top" aria-label="주제별 말씀 모음 처음으로">
+      <svg width="27" height="27" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#243b65"/><path d="M9 9h6v16H9zm8 0h6v16h-6z" fill="#fff"/><path d="M9 7h6v2H9zm8 0h6v2h-6z" fill="#bfcdf0"/></svg>
+      주제별 말씀 모음
+    </a><span class="collection-label">읽고, 마음에 새기다</span>
+  </div></header>
+  <nav class="mobile-nav" aria-label="모바일 주제 목차"><details id="mobile-toc">
+    <summary>주제 목차 <small>13개의 주제</small></summary>
+    <ol class="toc"><li><a href="#topic-01"><span class="toc-number">01</span><span>정체성·하나님의 사랑·인정 욕구와 비교</span></a></li>
+<li><a href="#topic-02"><span class="toc-number">02</span><span>물질·염려·자족·나눔</span></a></li>
+<li><a href="#topic-03"><span class="toc-number">03</span><span>음란·욕망·거룩함·마음의 변화</span></a></li>
+<li><a href="#topic-04"><span class="toc-number">04</span><span>두려움·미래에 대한 불안</span></a></li>
+<li><a href="#topic-05"><span class="toc-number">05</span><span>분노·미움·복수심·용서</span></a></li>
+<li><a href="#topic-06"><span class="toc-number">06</span><span>교만·질투·겸손</span></a></li>
+<li><a href="#topic-07"><span class="toc-number">07</span><span>말의 상처·험담·말의 절제</span></a></li>
+<li><a href="#topic-08"><span class="toc-number">08</span><span>죄책감·수치심·회개·회복</span></a></li>
+<li><a href="#topic-09"><span class="toc-number">09</span><span>낙심·고난·위로</span></a></li>
+<li><a href="#topic-10"><span class="toc-number">10</span><span>나태·실천·포기하고 싶은 마음</span></a></li>
+<li><a href="#topic-11"><span class="toc-number">11</span><span>세상의 가치관·우상·분별</span></a></li>
+<li><a href="#topic-12"><span class="toc-number">12</span><span>사랑·공동체·서로 돌봄</span></a></li>
+<li><a href="#topic-13"><span class="toc-number">13</span><span>영적 전투·깨어 있음·시험 중의 도움</span></a></li></ol>
+  </details></nav>
+  <div class="layout">
+    <aside class="sidebar"><nav aria-label="주제 목차">
+      <h2 class="nav-heading">주제 목차 <span>13개의 주제</span></h2>
+      <ol class="toc"><li><a href="#topic-01"><span class="toc-number">01</span><span>정체성·하나님의 사랑·인정 욕구와 비교</span></a></li>
+<li><a href="#topic-02"><span class="toc-number">02</span><span>물질·염려·자족·나눔</span></a></li>
+<li><a href="#topic-03"><span class="toc-number">03</span><span>음란·욕망·거룩함·마음의 변화</span></a></li>
+<li><a href="#topic-04"><span class="toc-number">04</span><span>두려움·미래에 대한 불안</span></a></li>
+<li><a href="#topic-05"><span class="toc-number">05</span><span>분노·미움·복수심·용서</span></a></li>
+<li><a href="#topic-06"><span class="toc-number">06</span><span>교만·질투·겸손</span></a></li>
+<li><a href="#topic-07"><span class="toc-number">07</span><span>말의 상처·험담·말의 절제</span></a></li>
+<li><a href="#topic-08"><span class="toc-number">08</span><span>죄책감·수치심·회개·회복</span></a></li>
+<li><a href="#topic-09"><span class="toc-number">09</span><span>낙심·고난·위로</span></a></li>
+<li><a href="#topic-10"><span class="toc-number">10</span><span>나태·실천·포기하고 싶은 마음</span></a></li>
+<li><a href="#topic-11"><span class="toc-number">11</span><span>세상의 가치관·우상·분별</span></a></li>
+<li><a href="#topic-12"><span class="toc-number">12</span><span>사랑·공동체·서로 돌봄</span></a></li>
+<li><a href="#topic-13"><span class="toc-number">13</span><span>영적 전투·깨어 있음·시험 중의 도움</span></a></li></ol>
+    </nav><p class="sidebar-note">그날 마음에 와닿는 말씀을<br>자유롭게 골라 읽고 적어 보세요.</p></aside>
+    <main id="reading">
+      <header class="intro">
+        <p class="eyebrow">SCRIPTURE COLLECTION</p>
+        <h1>주제별 말씀 모음</h1>
+        <p class="intro-text">그날 마음에 와닿는 말씀을<br>자유롭게 골라 읽고 적어 보세요.</p>
+        <div class="intro-bottom"><span class="stats"><strong>13</strong>개의 주제 &nbsp;·&nbsp; <strong>75</strong>개의 말씀</span>
+          <div class="font-controls" role="group" aria-label="말씀 글자 크기" hidden>
+            <span class="font-label">글자 크기</span>
+            <button id="font-smaller" type="button" aria-label="말씀 글자 작게">가−</button>
+            <button id="font-larger" type="button" aria-label="말씀 글자 크게">가＋</button>
+          </div>
+        </div>
+        <span id="font-status" class="sr-only" role="status"></span>
+      </header>
+      <section class="topic" id="topic-01" aria-labelledby="topic-01-title">
+<header class="topic-header"><span class="chapter-number">01 / 13</span><h2 id="topic-01-title">정체성·하나님의 사랑·인정 욕구와 비교</h2></header>
+<p class="subcategory">하나님의 자녀라는 정체성</p>
+<article class="verse" id="topic-01-verse-01" aria-labelledby="topic-01-verse-01-title"><div class="verse-heading"><h3 id="topic-01-verse-01-title">요한복음 1:12</h3><a class="verse-link" href="#topic-01-verse-01" aria-label="요한복음 1:12 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="12절">12</span>영접하는 자 곧 그 이름을 믿는 자들에게는 하나님의 자녀가 되는 권세를 주셨으니</p>
+</article>
+<article class="verse" id="topic-01-verse-02" aria-labelledby="topic-01-verse-02-title"><div class="verse-heading"><h3 id="topic-01-verse-02-title">요한일서 3:1</h3><a class="verse-link" href="#topic-01-verse-02" aria-label="요한일서 3:1 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="1절">1</span>보라 아버지께서 어떠한 사랑을 우리에게 베푸사 하나님의 자녀라 일컬음을 받게 하셨는가, 우리가 그러하도다 그러므로 세상이 우리를 알지 못함은 그를 알지 못함이라</p>
+</article>
+<article class="verse" id="topic-01-verse-03" aria-labelledby="topic-01-verse-03-title"><div class="verse-heading"><h3 id="topic-01-verse-03-title">로마서 8:15-16</h3><a class="verse-link" href="#topic-01-verse-03" aria-label="로마서 8:15-16 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="15절">15</span>너희는 다시 무서워하는 종의 영을 받지 아니하고 양자의 영을 받았으므로 우리가 아빠 아버지라고 부르짖느니라</p>
+<p class="passage"><span class="verse-number" aria-label="16절">16</span>성령이 친히 우리의 영과 더불어 우리가 하나님의 자녀인 것을 증언하시나니</p>
+</article>
+<article class="verse" id="topic-01-verse-04" aria-labelledby="topic-01-verse-04-title"><div class="verse-heading"><h3 id="topic-01-verse-04-title">갈라디아서 4:6-7</h3><a class="verse-link" href="#topic-01-verse-04" aria-label="갈라디아서 4:6-7 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="6절">6</span>너희가 아들이므로 하나님이 그 아들의 영을 우리 마음 가운데 보내사 아빠 아버지라 부르게 하셨느니라</p>
+<p class="passage"><span class="verse-number" aria-label="7절">7</span>그러므로 네가 이 후로는 종이 아니요 아들이니 아들이면 하나님으로 말미암아 유업을 받을 자니라</p>
+</article>
+<article class="verse" id="topic-01-verse-05" aria-labelledby="topic-01-verse-05-title"><div class="verse-heading"><h3 id="topic-01-verse-05-title">에베소서 1:5-6</h3><a class="verse-link" href="#topic-01-verse-05" aria-label="에베소서 1:5-6 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="5절">5</span>그 기쁘신 뜻대로 우리를 예정하사 예수 그리스도로 말미암아 자기의 아들들이 되게 하셨으니</p>
+<p class="passage"><span class="verse-number" aria-label="6절">6</span>이는 그가 사랑하시는 자 안에서 우리에게 거저 주시는 바 그의 은혜의 영광을 찬송하게 하려는 것이라</p>
+</article>
+<article class="verse" id="topic-01-verse-06" aria-labelledby="topic-01-verse-06-title"><div class="verse-heading"><h3 id="topic-01-verse-06-title">에베소서 2:8-9</h3><a class="verse-link" href="#topic-01-verse-06" aria-label="에베소서 2:8-9 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="8절">8</span>너희는 그 은혜에 의하여 믿음으로 말미암아 구원을 받았으니 이것은 너희에게서 난 것이 아니요 하나님의 선물이라</p>
+<p class="passage"><span class="verse-number" aria-label="9절">9</span>행위에서 난 것이 아니니 이는 누구든지 자랑하지 못하게 함이라</p>
+</article>
+<article class="verse" id="topic-01-verse-07" aria-labelledby="topic-01-verse-07-title"><div class="verse-heading"><h3 id="topic-01-verse-07-title">에베소서 2:19</h3><a class="verse-link" href="#topic-01-verse-07" aria-label="에베소서 2:19 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="19절">19</span>그러므로 이제부터 너희는 외인도 아니요 나그네도 아니요 오직 성도들과 동일한 시민이요 하나님의 권속이라</p>
+</article>
+<article class="verse" id="topic-01-verse-08" aria-labelledby="topic-01-verse-08-title"><div class="verse-heading"><h3 id="topic-01-verse-08-title">고린도후서 5:17</h3><a class="verse-link" href="#topic-01-verse-08" aria-label="고린도후서 5:17 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="17절">17</span>그런즉 누구든지 그리스도 안에 있으면 새로운 피조물이라 이전 것은 지나갔으니 보라 새 것이 되었도다</p>
+</article>
+<article class="verse" id="topic-01-verse-09" aria-labelledby="topic-01-verse-09-title"><div class="verse-heading"><h3 id="topic-01-verse-09-title">베드로전서 2:9-10</h3><a class="verse-link" href="#topic-01-verse-09" aria-label="베드로전서 2:9-10 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="9절">9</span>그러나 너희는 택하신 족속이요 왕 같은 제사장들이요 거룩한 나라요 그의 소유가 된 백성이니 이는 너희를 어두운 데서 불러 내어 그의 기이한 빛에 들어가게 하신 이의 아름다운 덕을 선포하게 하려 하심이라</p>
+<p class="passage"><span class="verse-number" aria-label="10절">10</span>너희가 전에는 백성이 아니더니 이제는 하나님의 백성이요 전에는 긍휼을 얻지 못하였더니 이제는 긍휼을 얻은 자니라</p>
+</article>
+<p class="subcategory">하나님이 우리를 얼마나 사랑하시는가</p>
+<article class="verse" id="topic-01-verse-10" aria-labelledby="topic-01-verse-10-title"><div class="verse-heading"><h3 id="topic-01-verse-10-title">로마서 5:8</h3><a class="verse-link" href="#topic-01-verse-10" aria-label="로마서 5:8 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="8절">8</span>우리가 아직 죄인 되었을 때에 그리스도께서 우리를 위하여 죽으심으로 하나님께서 우리에 대한 자기의 사랑을 확증하셨느니라</p>
+</article>
+<article class="verse" id="topic-01-verse-11" aria-labelledby="topic-01-verse-11-title"><div class="verse-heading"><h3 id="topic-01-verse-11-title">로마서 8:31-32</h3><a class="verse-link" href="#topic-01-verse-11" aria-label="로마서 8:31-32 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="31절">31</span>그런즉 이 일에 대하여 우리가 무슨 말 하리요 만일 하나님이 우리를 위하시면 누가 우리를 대적하리요</p>
+<p class="passage"><span class="verse-number" aria-label="32절">32</span>자기 아들을 아끼지 아니하시고 우리 모든 사람을 위하여 내주신 이가 어찌 그 아들과 함께 모든 것을 우리에게 주시지 아니하겠느냐</p>
+</article>
+<article class="verse" id="topic-01-verse-12" aria-labelledby="topic-01-verse-12-title"><div class="verse-heading"><h3 id="topic-01-verse-12-title">로마서 8:38-39</h3><a class="verse-link" href="#topic-01-verse-12" aria-label="로마서 8:38-39 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="38절">38</span>내가 확신하노니 사망이나 생명이나 천사들이나 권세자들이나 현재 일이나 장래 일이나 능력이나</p>
+<p class="passage"><span class="verse-number" aria-label="39절">39</span>높음이나 깊음이나 다른 어떤 피조물이라도 우리를 우리 주 그리스도 예수 안에 있는 하나님의 사랑에서 끊을 수 없으리라</p>
+</article>
+<article class="verse" id="topic-01-verse-13" aria-labelledby="topic-01-verse-13-title"><div class="verse-heading"><h3 id="topic-01-verse-13-title">요한일서 4:9-10</h3><a class="verse-link" href="#topic-01-verse-13" aria-label="요한일서 4:9-10 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="9절">9</span>하나님의 사랑이 우리에게 이렇게 나타난 바 되었으니 하나님이 자기의 독생자를 세상에 보내심은 그로 말미암아 우리를 살리려 하심이라</p>
+<p class="passage"><span class="verse-number" aria-label="10절">10</span>사랑은 여기 있으니 우리가 하나님을 사랑한 것이 아니요 하나님이 우리를 사랑하사 우리 죄를 속하기 위하여 화목 제물로 그 아들을 보내셨음이라</p>
+</article>
+<article class="verse" id="topic-01-verse-14" aria-labelledby="topic-01-verse-14-title"><div class="verse-heading"><h3 id="topic-01-verse-14-title">요한일서 4:18-19</h3><a class="verse-link" href="#topic-01-verse-14" aria-label="요한일서 4:18-19 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="18절">18</span>사랑 안에 두려움이 없고 온전한 사랑이 두려움을 내쫓나니 두려움에는 형벌이 있음이라 두려워하는 자는 사랑 안에서 온전히 이루지 못하였느니라</p>
+<p class="passage"><span class="verse-number" aria-label="19절">19</span>우리가 사랑함은 그가 먼저 우리를 사랑하셨음이라</p>
+</article>
+<article class="verse" id="topic-01-verse-15" aria-labelledby="topic-01-verse-15-title"><div class="verse-heading"><h3 id="topic-01-verse-15-title">요한복음 3:16-17</h3><a class="verse-link" href="#topic-01-verse-15" aria-label="요한복음 3:16-17 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="16절">16</span>하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 그를 믿는 자마다 멸망하지 않고 영생을 얻게 하려 하심이라</p>
+<p class="passage"><span class="verse-number" aria-label="17절">17</span>하나님이 그 아들을 세상에 보내신 것은 세상을 심판하려 하심이 아니요 그로 말미암아 세상이 구원을 받게 하려 하심이라</p>
+</article>
+<article class="verse" id="topic-01-verse-16" aria-labelledby="topic-01-verse-16-title"><div class="verse-heading"><h3 id="topic-01-verse-16-title">에베소서 2:4-5</h3><a class="verse-link" href="#topic-01-verse-16" aria-label="에베소서 2:4-5 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="4절">4</span>긍휼이 풍성하신 하나님이 우리를 사랑하신 그 큰 사랑을 인하여</p>
+<p class="passage"><span class="verse-number" aria-label="5절">5</span>허물로 죽은 우리를 그리스도와 함께 살리셨고 (너희는 은혜로 구원을 받은 것이라)</p>
+</article>
+<article class="verse" id="topic-01-verse-17" aria-labelledby="topic-01-verse-17-title"><div class="verse-heading"><h3 id="topic-01-verse-17-title">에베소서 3:18-19</h3><a class="verse-link" href="#topic-01-verse-17" aria-label="에베소서 3:18-19 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="18절">18</span>능히 모든 성도와 함께 지식에 넘치는 그리스도의 사랑을 알고</p>
+<p class="passage"><span class="verse-number" aria-label="19절">19</span>그 너비와 길이와 높이와 깊이가 어떠함을 깨달아 하나님의 모든 충만하신 것으로 너희에게 충만하게 하시기를 구하노라</p>
+</article>
+<article class="verse" id="topic-01-verse-18" aria-labelledby="topic-01-verse-18-title"><div class="verse-heading"><h3 id="topic-01-verse-18-title">요한복음 15:9</h3><a class="verse-link" href="#topic-01-verse-18" aria-label="요한복음 15:9 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="9절">9</span>아버지께서 나를 사랑하신 것 같이 나도 너희를 사랑하였으니 나의 사랑 안에 거하라</p>
+</article>
+<article class="verse" id="topic-01-verse-19" aria-labelledby="topic-01-verse-19-title"><div class="verse-heading"><h3 id="topic-01-verse-19-title">요한복음 10:28-29</h3><a class="verse-link" href="#topic-01-verse-19" aria-label="요한복음 10:28-29 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="28절">28</span>내가 그들에게 영생을 주노니 영원히 멸망하지 아니할 것이요 또 그들을 내 손에서 빼앗을 자가 없느니라</p>
+<p class="passage"><span class="verse-number" aria-label="29절">29</span>그들을 주신 내 아버지는 만물보다 크시매 아무도 아버지 손에서 빼앗을 수 없느니라</p>
+</article>
+<article class="verse" id="topic-01-verse-20" aria-labelledby="topic-01-verse-20-title"><div class="verse-heading"><h3 id="topic-01-verse-20-title">시편 103:13-14</h3><a class="verse-link" href="#topic-01-verse-20" aria-label="시편 103:13-14 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="13절">13</span>아버지가 자식을 긍휼히 여김 같이 여호와께서는 자기를 경외하는 자를 긍휼히 여기시나니</p>
+<p class="passage"><span class="verse-number" aria-label="14절">14</span>이는 그가 우리의 체질을 아시며 우리가 단지 먼지뿐임을 기억하심이로다</p>
+</article>
+<article class="verse" id="topic-01-verse-21" aria-labelledby="topic-01-verse-21-title"><div class="verse-heading"><h3 id="topic-01-verse-21-title">마태복음 10:30-31</h3><a class="verse-link" href="#topic-01-verse-21" aria-label="마태복음 10:30-31 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="30절">30</span>너희에게는 머리털까지 다 세신 바 되었나니</p>
+<p class="passage"><span class="verse-number" aria-label="31절">31</span>두려워하지 말라 너희는 많은 참새보다 귀하니라</p>
+</article>
+<p class="subcategory">인정 욕구와 비교에서 벗어나 누리는 쉼</p>
+<article class="verse" id="topic-01-verse-22" aria-labelledby="topic-01-verse-22-title"><div class="verse-heading"><h3 id="topic-01-verse-22-title">갈라디아서 1:10</h3><a class="verse-link" href="#topic-01-verse-22" aria-label="갈라디아서 1:10 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="10절">10</span>이제 내가 사람들에게 좋게 하랴 하나님께 좋게 하랴 사람들에게 기쁨을 구하랴 내가 지금까지 사람들의 기쁨을 구하였다면 그리스도의 종이 아니니라</p>
+</article>
+<article class="verse" id="topic-01-verse-23" aria-labelledby="topic-01-verse-23-title"><div class="verse-heading"><h3 id="topic-01-verse-23-title">갈라디아서 6:4-5</h3><a class="verse-link" href="#topic-01-verse-23" aria-label="갈라디아서 6:4-5 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="4절">4</span>각각 자기의 일을 살피라 그리하면 자랑할 것이 자기에게는 있어도 남에게는 있지 아니하리니</p>
+<p class="passage"><span class="verse-number" aria-label="5절">5</span>각각 자기의 짐을 질 것이라</p>
+</article>
+<article class="verse" id="topic-01-verse-24" aria-labelledby="topic-01-verse-24-title"><div class="verse-heading"><h3 id="topic-01-verse-24-title">고린도전서 12:18-20</h3><a class="verse-link" href="#topic-01-verse-24" aria-label="고린도전서 12:18-20 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="18절">18</span>그러나 이제 하나님이 그 원하시는 대로 지체를 각각 몸에 두셨으니</p>
+<p class="passage"><span class="verse-number" aria-label="19절">19</span>만일 다 한 지체뿐이면 몸은 어디냐</p>
+<p class="passage"><span class="verse-number" aria-label="20절">20</span>이제 지체는 많으나 몸은 하나라</p>
+</article>
+<article class="verse" id="topic-01-verse-25" aria-labelledby="topic-01-verse-25-title"><div class="verse-heading"><h3 id="topic-01-verse-25-title">마태복음 11:28-29</h3><a class="verse-link" href="#topic-01-verse-25" aria-label="마태복음 11:28-29 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="28절">28</span>수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라</p>
+<p class="passage"><span class="verse-number" aria-label="29절">29</span>나는 마음이 온유하고 겸손하니 나의 멍에를 메고 내게 배우라 그리하면 너희 마음이 쉼을 얻으리니</p>
+</article>
+<div class="topic-bottom"><a href="#top">목차로 ↑</a></div></section>
+<section class="topic" id="topic-02" aria-labelledby="topic-02-title">
+<header class="topic-header"><span class="chapter-number">02 / 13</span><h2 id="topic-02-title">물질·염려·자족·나눔</h2></header>
+<article class="verse" id="topic-02-verse-01" aria-labelledby="topic-02-verse-01-title"><div class="verse-heading"><h3 id="topic-02-verse-01-title">마태복음 6:31-32</h3><a class="verse-link" href="#topic-02-verse-01" aria-label="마태복음 6:31-32 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="31절">31</span>그러므로 염려하여 이르기를 무엇을 먹을까 무엇을 마실까 무엇을 입을까 하지 말라</p>
+<p class="passage"><span class="verse-number" aria-label="32절">32</span>이는 다 이방인들이 구하는 것이라 너희 하늘 아버지께서 이 모든 것이 너희에게 있어야 할 줄을 아시느니라</p>
+</article>
+<article class="verse" id="topic-02-verse-02" aria-labelledby="topic-02-verse-02-title"><div class="verse-heading"><h3 id="topic-02-verse-02-title">빌립보서 4:6-7</h3><a class="verse-link" href="#topic-02-verse-02" aria-label="빌립보서 4:6-7 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="6절">6</span>아무 것도 염려하지 말고 다만 모든 일에 기도와 간구로, 너희 구할 것을 감사함으로 하나님께 아뢰라</p>
+<p class="passage"><span class="verse-number" aria-label="7절">7</span>그리하면 모든 지각에 뛰어난 하나님의 평강이 그리스도 예수 안에서 너희 마음과 생각을 지키시리라</p>
+</article>
+<article class="verse" id="topic-02-verse-03" aria-labelledby="topic-02-verse-03-title"><div class="verse-heading"><h3 id="topic-02-verse-03-title">빌립보서 4:12-13</h3><a class="verse-link" href="#topic-02-verse-03" aria-label="빌립보서 4:12-13 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="12절">12</span>나는 비천에 처할 줄도 알고 풍부에 처할 줄도 알아 모든 일 곧 배부름과 배고픔과 풍부와 궁핍에도 처할 줄 아는 일체의 비결을 배웠노라</p>
+<p class="passage"><span class="verse-number" aria-label="13절">13</span>내게 능력 주시는 자 안에서 내가 모든 것을 할 수 있느니라</p>
+</article>
+<article class="verse" id="topic-02-verse-04" aria-labelledby="topic-02-verse-04-title"><div class="verse-heading"><h3 id="topic-02-verse-04-title">히브리서 13:5-6</h3><a class="verse-link" href="#topic-02-verse-04" aria-label="히브리서 13:5-6 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="5절">5</span>돈을 사랑하지 말고 있는 바를 족한 줄로 알라 그가 친히 말씀하시기를 내가 결코 너희를 버리지 아니하고 너희를 떠나지 아니하리라 하셨느니라</p>
+<p class="passage"><span class="verse-number" aria-label="6절">6</span>그러므로 우리가 담대히 말하되 주는 나를 돕는 이시니 내가 무서워하지 아니하겠노라 사람이 내게 어찌하리요 하노라</p>
+</article>
+<article class="verse" id="topic-02-verse-05" aria-labelledby="topic-02-verse-05-title"><div class="verse-heading"><h3 id="topic-02-verse-05-title">베드로전서 5:7</h3><a class="verse-link" href="#topic-02-verse-05" aria-label="베드로전서 5:7 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="7절">7</span>너희 염려를 다 주께 맡기라 이는 그가 너희를 돌보심이라</p>
+</article>
+<article class="verse" id="topic-02-verse-06" aria-labelledby="topic-02-verse-06-title"><div class="verse-heading"><h3 id="topic-02-verse-06-title">하박국 3:18</h3><a class="verse-link" href="#topic-02-verse-06" aria-label="하박국 3:18 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="18절">18</span>나는 여호와로 말미암아 즐거워하며 나의 구원의 하나님으로 말미암아 기뻐하리로다</p>
+</article>
+<article class="verse" id="topic-02-verse-07" aria-labelledby="topic-02-verse-07-title"><div class="verse-heading"><h3 id="topic-02-verse-07-title">잠언 30:8-9</h3><a class="verse-link" href="#topic-02-verse-07" aria-label="잠언 30:8-9 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="8절">8</span>곧 헛된 것과 거짓말을 내게서 멀리 하옵시며 나를 가난하게도 마옵시고 부하게도 마옵시고 오직 필요한 양식으로 나를 먹이시옵소서</p>
+<p class="passage"><span class="verse-number" aria-label="9절">9</span>혹 내가 배불러서 하나님을 모른다 여호와가 누구냐 할까 하오며 혹 내가 가난하여 도둑질하고 내 하나님의 이름을 욕되게 할까 두려워함이니이다</p>
+</article>
+<article class="verse" id="topic-02-verse-08" aria-labelledby="topic-02-verse-08-title"><div class="verse-heading"><h3 id="topic-02-verse-08-title">마태복음 6:24</h3><a class="verse-link" href="#topic-02-verse-08" aria-label="마태복음 6:24 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="24절">24</span>한 사람이 두 주인을 섬기지 못할 것이니 혹 이를 미워하고 저를 사랑하거나 혹 이를 중히 여기고 저를 경히 여김이라 너희가 하나님과 재물을 겸하여 섬기지 못하느니라</p>
+</article>
+<article class="verse" id="topic-02-verse-09" aria-labelledby="topic-02-verse-09-title"><div class="verse-heading"><h3 id="topic-02-verse-09-title">디모데전서 6:9-10</h3><a class="verse-link" href="#topic-02-verse-09" aria-label="디모데전서 6:9-10 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="9절">9</span>부하려 하는 자들은 시험과 올무와 여러 가지 어리석고 해로운 욕심에 떨어지나니 곧 사람으로 파멸과 멸망에 빠지게 하는 것이라</p>
+<p class="passage"><span class="verse-number" aria-label="10절">10</span>돈을 사랑함이 일만 악의 뿌리가 되나니 이것을 탐내는 자들은 미혹을 받아 믿음에서 떠나 많은 근심으로써 자기를 찔렀도다</p>
+</article>
+<article class="verse" id="topic-02-verse-10" aria-labelledby="topic-02-verse-10-title"><div class="verse-heading"><h3 id="topic-02-verse-10-title">디모데전서 6:17-18</h3><a class="verse-link" href="#topic-02-verse-10" aria-label="디모데전서 6:17-18 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="17절">17</span>네가 이 세대에서 부한 자들을 명하여 마음을 높이지 말고 정함이 없는 재물에 소망을 두지 말고 오직 우리에게 모든 것을 후히 주사 누리게 하시는 하나님께 두며</p>
+<p class="passage"><span class="verse-number" aria-label="18절">18</span>선을 행하고 선한 사업을 많이 하고 나누어 주기를 좋아하며 너그러운 자가 되게 하라</p>
+</article>
+<div class="topic-bottom"><a href="#top">목차로 ↑</a></div></section>
+<section class="topic" id="topic-03" aria-labelledby="topic-03-title">
+<header class="topic-header"><span class="chapter-number">03 / 13</span><h2 id="topic-03-title">음란·욕망·거룩함·마음의 변화</h2></header>
+<article class="verse" id="topic-03-verse-01" aria-labelledby="topic-03-verse-01-title"><div class="verse-heading"><h3 id="topic-03-verse-01-title">고린도전서 6:19-20</h3><a class="verse-link" href="#topic-03-verse-01" aria-label="고린도전서 6:19-20 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="19절">19</span>너희 몸은 너희가 하나님께로부터 받은 바 너희 가운데 계신 성령의 전인 줄을 알지 못하느냐 너희는 너희 자신의 것이 아니라</p>
+<p class="passage"><span class="verse-number" aria-label="20절">20</span>값으로 산 것이 되었으니 그런즉 너희 몸으로 하나님께 영광을 돌리라</p>
+</article>
+<article class="verse" id="topic-03-verse-02" aria-labelledby="topic-03-verse-02-title"><div class="verse-heading"><h3 id="topic-03-verse-02-title">고린도후서 5:14-15</h3><a class="verse-link" href="#topic-03-verse-02" aria-label="고린도후서 5:14-15 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="14절">14</span>그리스도의 사랑이 우리를 강권하시는도다 우리가 생각하건대 한 사람이 모든 사람을 대신하여 죽었은즉 모든 사람이 죽은 것이라</p>
+<p class="passage"><span class="verse-number" aria-label="15절">15</span>그가 모든 사람을 대신하여 죽으심은 살아 있는 자들로 하여금 다시는 그들 자신을 위하여 살지 않고 오직 그들을 대신하여 죽었다가 다시 살아나신 이를 위하여 살게 하려 함이라</p>
+</article>
+<article class="verse" id="topic-03-verse-03" aria-labelledby="topic-03-verse-03-title"><div class="verse-heading"><h3 id="topic-03-verse-03-title">갈라디아서 5:16</h3><a class="verse-link" href="#topic-03-verse-03" aria-label="갈라디아서 5:16 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="16절">16</span>내가 이르노니 너희는 성령을 따라 행하라 그리하면 육체의 욕심을 이루지 아니하리라</p>
+</article>
+<article class="verse" id="topic-03-verse-04" aria-labelledby="topic-03-verse-04-title"><div class="verse-heading"><h3 id="topic-03-verse-04-title">갈라디아서 5:22-23</h3><a class="verse-link" href="#topic-03-verse-04" aria-label="갈라디아서 5:22-23 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="22절">22</span>오직 성령의 열매는 사랑과 희락과 화평과 오래 참음과 자비와 양선과 충성과</p>
+<p class="passage"><span class="verse-number" aria-label="23절">23</span>온유와 절제니 이같은 것을 금지할 법이 없느니라</p>
+</article>
+<article class="verse" id="topic-03-verse-05" aria-labelledby="topic-03-verse-05-title"><div class="verse-heading"><h3 id="topic-03-verse-05-title">디도서 2:11-12</h3><a class="verse-link" href="#topic-03-verse-05" aria-label="디도서 2:11-12 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="11절">11</span>모든 사람에게 구원을 주시는 하나님의 은혜가 나타나</p>
+<p class="passage"><span class="verse-number" aria-label="12절">12</span>우리를 양육하시되 경건하지 않은 것과 이 세상 정욕을 다 버리고 신중함과 의로움과 경건함으로 이 세상에 살고</p>
+</article>
+<article class="verse" id="topic-03-verse-06" aria-labelledby="topic-03-verse-06-title"><div class="verse-heading"><h3 id="topic-03-verse-06-title">디모데후서 2:22</h3><a class="verse-link" href="#topic-03-verse-06" aria-label="디모데후서 2:22 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="22절">22</span>또한 너는 청년의 정욕을 피하고 주를 깨끗한 마음으로 부르는 자들과 함께 의와 믿음과 사랑과 화평을 따르라</p>
+</article>
+<article class="verse" id="topic-03-verse-07" aria-labelledby="topic-03-verse-07-title"><div class="verse-heading"><h3 id="topic-03-verse-07-title">시편 119:11</h3><a class="verse-link" href="#topic-03-verse-07" aria-label="시편 119:11 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="11절">11</span>내가 주께 범죄하지 아니하려 하여 주의 말씀을 내 마음에 두었나이다</p>
+</article>
+<article class="verse" id="topic-03-verse-08" aria-labelledby="topic-03-verse-08-title"><div class="verse-heading"><h3 id="topic-03-verse-08-title">고린도전서 10:13</h3><a class="verse-link" href="#topic-03-verse-08" aria-label="고린도전서 10:13 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="13절">13</span>사람이 감당할 시험 밖에는 너희가 당한 것이 없나니 오직 하나님은 미쁘사 너희가 감당하지 못할 시험 당함을 허락하지 아니하시고 시험 당할 즈음에 또한 피할 길을 내사 너희로 능히 감당하게 하시느니라</p>
+</article>
+<article class="verse" id="topic-03-verse-09" aria-labelledby="topic-03-verse-09-title"><div class="verse-heading"><h3 id="topic-03-verse-09-title">시편 63:3</h3><a class="verse-link" href="#topic-03-verse-09" aria-label="시편 63:3 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="3절">3</span>주의 인자하심이 생명보다 나으므로 내 입술이 주를 찬양할 것이라</p>
+</article>
+<article class="verse" id="topic-03-verse-10" aria-labelledby="topic-03-verse-10-title"><div class="verse-heading"><h3 id="topic-03-verse-10-title">데살로니가전서 4:3-4</h3><a class="verse-link" href="#topic-03-verse-10" aria-label="데살로니가전서 4:3-4 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="3절">3</span>하나님의 뜻은 이것이니 너희의 거룩함이라 곧 음란을 버리고</p>
+<p class="passage"><span class="verse-number" aria-label="4절">4</span>각각 거룩함과 존귀함으로 자기의 아내 대할 줄을 알고</p>
+</article>
+<div class="topic-bottom"><a href="#top">목차로 ↑</a></div></section>
+<section class="topic" id="topic-04" aria-labelledby="topic-04-title">
+<header class="topic-header"><span class="chapter-number">04 / 13</span><h2 id="topic-04-title">두려움·미래에 대한 불안</h2></header>
+<article class="verse" id="topic-04-verse-01" aria-labelledby="topic-04-verse-01-title"><div class="verse-heading"><h3 id="topic-04-verse-01-title">시편 23:4</h3><a class="verse-link" href="#topic-04-verse-01" aria-label="시편 23:4 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="4절">4</span>내가 사망의 음침한 골짜기로 다닐지라도 해를 두려워하지 않을 것은 주께서 나와 함께 하심이라 주의 지팡이와 막대기가 나를 안위하시나이다</p>
+</article>
+<article class="verse" id="topic-04-verse-02" aria-labelledby="topic-04-verse-02-title"><div class="verse-heading"><h3 id="topic-04-verse-02-title">시편 56:3-4</h3><a class="verse-link" href="#topic-04-verse-02" aria-label="시편 56:3-4 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="3절">3</span>내가 두려워하는 날에는 내가 주를 의지하리이다</p>
+<p class="passage"><span class="verse-number" aria-label="4절">4</span>내가 하나님을 의지하고 그 말씀을 찬송하올지라 내가 하나님을 의지하였은즉 두려워하지 아니하리니 혈육을 가진 사람이 내게 어찌하리이까</p>
+</article>
+<article class="verse" id="topic-04-verse-03" aria-labelledby="topic-04-verse-03-title"><div class="verse-heading"><h3 id="topic-04-verse-03-title">요한복음 14:27</h3><a class="verse-link" href="#topic-04-verse-03" aria-label="요한복음 14:27 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="27절">27</span>평안을 너희에게 끼치노니 곧 나의 평안을 너희에게 주노라 내가 너희에게 주는 것은 세상이 주는 것과 같지 아니하니라 너희는 마음에 근심하지도 말고 두려워하지도 말라</p>
+</article>
+<div class="topic-bottom"><a href="#top">목차로 ↑</a></div></section>
+<section class="topic" id="topic-05" aria-labelledby="topic-05-title">
+<header class="topic-header"><span class="chapter-number">05 / 13</span><h2 id="topic-05-title">분노·미움·복수심·용서</h2></header>
+<article class="verse" id="topic-05-verse-01" aria-labelledby="topic-05-verse-01-title"><div class="verse-heading"><h3 id="topic-05-verse-01-title">에베소서 4:32</h3><a class="verse-link" href="#topic-05-verse-01" aria-label="에베소서 4:32 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="32절">32</span>서로 친절하게 하며 불쌍히 여기며 서로 용서하기를 하나님이 그리스도 안에서 너희를 용서하심과 같이 하라</p>
+</article>
+<article class="verse" id="topic-05-verse-02" aria-labelledby="topic-05-verse-02-title"><div class="verse-heading"><h3 id="topic-05-verse-02-title">로마서 12:21</h3><a class="verse-link" href="#topic-05-verse-02" aria-label="로마서 12:21 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="21절">21</span>악에게 지지 말고 선으로 악을 이기라</p>
+</article>
+<article class="verse" id="topic-05-verse-03" aria-labelledby="topic-05-verse-03-title"><div class="verse-heading"><h3 id="topic-05-verse-03-title">야고보서 1:19-20</h3><a class="verse-link" href="#topic-05-verse-03" aria-label="야고보서 1:19-20 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="19절">19</span>내 사랑하는 형제들아 너희가 알지니 사람마다 듣기는 속히 하고 말하기는 더디 하며 성내기도 더디 하라</p>
+<p class="passage"><span class="verse-number" aria-label="20절">20</span>사람이 성내는 것이 하나님의 의를 이루지 못함이라</p>
+</article>
+<div class="topic-bottom"><a href="#top">목차로 ↑</a></div></section>
+<section class="topic" id="topic-06" aria-labelledby="topic-06-title">
+<header class="topic-header"><span class="chapter-number">06 / 13</span><h2 id="topic-06-title">교만·질투·겸손</h2></header>
+<article class="verse" id="topic-06-verse-01" aria-labelledby="topic-06-verse-01-title"><div class="verse-heading"><h3 id="topic-06-verse-01-title">빌립보서 2:3-4</h3><a class="verse-link" href="#topic-06-verse-01" aria-label="빌립보서 2:3-4 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="3절">3</span>아무 일에든지 다툼이나 허영으로 하지 말고 오직 겸손한 마음으로 각각 자기보다 남을 낫게 여기고</p>
+<p class="passage"><span class="verse-number" aria-label="4절">4</span>각각 자기 일을 돌볼뿐더러 또한 각각 다른 사람들의 일을 돌보아 나의 기쁨을 충만하게 하라</p>
+</article>
+<article class="verse" id="topic-06-verse-02" aria-labelledby="topic-06-verse-02-title"><div class="verse-heading"><h3 id="topic-06-verse-02-title">고린도전서 4:7</h3><a class="verse-link" href="#topic-06-verse-02" aria-label="고린도전서 4:7 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="7절">7</span>누가 너를 남달리 구별하였느냐 네게 있는 것 중에 받지 아니한 것이 무엇이냐 네가 받았은즉 어찌하여 받지 아니한 것 같이 자랑하느냐</p>
+</article>
+<article class="verse" id="topic-06-verse-03" aria-labelledby="topic-06-verse-03-title"><div class="verse-heading"><h3 id="topic-06-verse-03-title">야고보서 3:16-17</h3><a class="verse-link" href="#topic-06-verse-03" aria-label="야고보서 3:16-17 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="16절">16</span>시기와 다툼이 있는 곳에는 혼란과 모든 악한 일이 있음이라</p>
+<p class="passage"><span class="verse-number" aria-label="17절">17</span>오직 위로부터 난 지혜는 첫째 성결하고 다음에 화평하고 관용하고 양순하며 긍휼과 선한 열매가 가득하고 편견과 거짓이 없나니</p>
+</article>
+<div class="topic-bottom"><a href="#top">목차로 ↑</a></div></section>
+<section class="topic" id="topic-07" aria-labelledby="topic-07-title">
+<header class="topic-header"><span class="chapter-number">07 / 13</span><h2 id="topic-07-title">말의 상처·험담·말의 절제</h2></header>
+<article class="verse" id="topic-07-verse-01" aria-labelledby="topic-07-verse-01-title"><div class="verse-heading"><h3 id="topic-07-verse-01-title">잠언 12:18</h3><a class="verse-link" href="#topic-07-verse-01" aria-label="잠언 12:18 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="18절">18</span>칼로 찌름 같이 함부로 말하는 자가 있거니와 지혜로운 자의 혀는 양약과 같으니라</p>
+</article>
+<article class="verse" id="topic-07-verse-02" aria-labelledby="topic-07-verse-02-title"><div class="verse-heading"><h3 id="topic-07-verse-02-title">잠언 16:28</h3><a class="verse-link" href="#topic-07-verse-02" aria-label="잠언 16:28 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="28절">28</span>패역한 자는 다툼을 일으키고 말쟁이는 친한 벗을 이간하느니라</p>
+</article>
+<article class="verse" id="topic-07-verse-03" aria-labelledby="topic-07-verse-03-title"><div class="verse-heading"><h3 id="topic-07-verse-03-title">에베소서 4:29</h3><a class="verse-link" href="#topic-07-verse-03" aria-label="에베소서 4:29 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="29절">29</span>무릇 더러운 말은 너희 입 밖에도 내지 말고 오직 덕을 세우는 데 소용되는 대로 선한 말을 하여 듣는 자들에게 은혜를 끼치게 하라</p>
+</article>
+<div class="topic-bottom"><a href="#top">목차로 ↑</a></div></section>
+<section class="topic" id="topic-08" aria-labelledby="topic-08-title">
+<header class="topic-header"><span class="chapter-number">08 / 13</span><h2 id="topic-08-title">죄책감·수치심·회개·회복</h2></header>
+<article class="verse" id="topic-08-verse-01" aria-labelledby="topic-08-verse-01-title"><div class="verse-heading"><h3 id="topic-08-verse-01-title">요한일서 1:9</h3><a class="verse-link" href="#topic-08-verse-01" aria-label="요한일서 1:9 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="9절">9</span>만일 우리가 우리 죄를 자백하면 그는 미쁘시고 의로우사 우리 죄를 사하시며 우리를 모든 불의에서 깨끗하게 하실 것이요</p>
+</article>
+<article class="verse" id="topic-08-verse-02" aria-labelledby="topic-08-verse-02-title"><div class="verse-heading"><h3 id="topic-08-verse-02-title">로마서 8:1</h3><a class="verse-link" href="#topic-08-verse-02" aria-label="로마서 8:1 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="1절">1</span>그러므로 이제 그리스도 예수 안에 있는 자에게는 결코 정죄함이 없나니</p>
+</article>
+<article class="verse" id="topic-08-verse-03" aria-labelledby="topic-08-verse-03-title"><div class="verse-heading"><h3 id="topic-08-verse-03-title">히브리서 4:15-16</h3><a class="verse-link" href="#topic-08-verse-03" aria-label="히브리서 4:15-16 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="15절">15</span>우리에게 있는 대제사장은 우리의 연약함을 동정하지 못하실 이가 아니요 모든 일에 우리와 똑같이 시험을 받으신 이로되 죄는 없으시니라</p>
+<p class="passage"><span class="verse-number" aria-label="16절">16</span>그러므로 우리는 긍휼하심을 받고 때를 따라 돕는 은혜를 얻기 위하여 은혜의 보좌 앞에 담대히 나아갈 것이니라</p>
+</article>
+<div class="topic-bottom"><a href="#top">목차로 ↑</a></div></section>
+<section class="topic" id="topic-09" aria-labelledby="topic-09-title">
+<header class="topic-header"><span class="chapter-number">09 / 13</span><h2 id="topic-09-title">낙심·고난·위로</h2></header>
+<article class="verse" id="topic-09-verse-01" aria-labelledby="topic-09-verse-01-title"><div class="verse-heading"><h3 id="topic-09-verse-01-title">시편 34:18</h3><a class="verse-link" href="#topic-09-verse-01" aria-label="시편 34:18 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="18절">18</span>여호와는 마음이 상한 자를 가까이 하시고 충심으로 통회하는 자를 구원하시는도다</p>
+</article>
+<article class="verse" id="topic-09-verse-02" aria-labelledby="topic-09-verse-02-title"><div class="verse-heading"><h3 id="topic-09-verse-02-title">시편 42:11</h3><a class="verse-link" href="#topic-09-verse-02" aria-label="시편 42:11 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="11절">11</span>내 영혼아 네가 어찌하여 낙심하며 어찌하여 내 속에서 불안해 하는가 너는 하나님께 소망을 두라 나는 그가 나타나 도우심으로 말미암아 내 하나님을 여전히 찬송하리로다</p>
+</article>
+<article class="verse" id="topic-09-verse-03" aria-labelledby="topic-09-verse-03-title"><div class="verse-heading"><h3 id="topic-09-verse-03-title">고린도후서 12:9</h3><a class="verse-link" href="#topic-09-verse-03" aria-label="고린도후서 12:9 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="9절">9</span>나에게 이르시기를 내 은혜가 네게 족하도다 이는 내 능력이 약한 데서 온전하여짐이라 하신지라 그러므로 도리어 크게 기뻐함으로 나의 여러 약한 것들에 대하여 자랑하리니 이는 그리스도의 능력이 내게 머물게 하려 함이라</p>
+</article>
+<div class="topic-bottom"><a href="#top">목차로 ↑</a></div></section>
+<section class="topic" id="topic-10" aria-labelledby="topic-10-title">
+<header class="topic-header"><span class="chapter-number">10 / 13</span><h2 id="topic-10-title">나태·실천·포기하고 싶은 마음</h2></header>
+<article class="verse" id="topic-10-verse-01" aria-labelledby="topic-10-verse-01-title"><div class="verse-heading"><h3 id="topic-10-verse-01-title">야고보서 1:22</h3><a class="verse-link" href="#topic-10-verse-01" aria-label="야고보서 1:22 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="22절">22</span>너희는 말씀을 행하는 자가 되고 듣기만 하여 자신을 속이는 자가 되지 말라</p>
+</article>
+<article class="verse" id="topic-10-verse-02" aria-labelledby="topic-10-verse-02-title"><div class="verse-heading"><h3 id="topic-10-verse-02-title">갈라디아서 6:9</h3><a class="verse-link" href="#topic-10-verse-02" aria-label="갈라디아서 6:9 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="9절">9</span>우리가 선을 행하되 낙심하지 말지니 포기하지 아니하면 때가 이르매 거두리라</p>
+</article>
+<article class="verse" id="topic-10-verse-03" aria-labelledby="topic-10-verse-03-title"><div class="verse-heading"><h3 id="topic-10-verse-03-title">히브리서 6:10</h3><a class="verse-link" href="#topic-10-verse-03" aria-label="히브리서 6:10 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="10절">10</span>하나님은 불의하지 아니하사 너희 행위와 그의 이름을 위하여 나타낸 사랑으로 이미 성도를 섬긴 것과 이제도 섬기고 있는 것을 잊어버리지 아니하시느니라</p>
+</article>
+<div class="topic-bottom"><a href="#top">목차로 ↑</a></div></section>
+<section class="topic" id="topic-11" aria-labelledby="topic-11-title">
+<header class="topic-header"><span class="chapter-number">11 / 13</span><h2 id="topic-11-title">세상의 가치관·우상·분별</h2></header>
+<article class="verse" id="topic-11-verse-01" aria-labelledby="topic-11-verse-01-title"><div class="verse-heading"><h3 id="topic-11-verse-01-title">로마서 12:2</h3><a class="verse-link" href="#topic-11-verse-01" aria-label="로마서 12:2 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="2절">2</span>너희는 이 세대를 본받지 말고 오직 마음을 새롭게 함으로 변화를 받아 하나님의 선하시고 기뻐하시고 온전하신 뜻이 무엇인지 분별하도록 하라</p>
+</article>
+<article class="verse" id="topic-11-verse-02" aria-labelledby="topic-11-verse-02-title"><div class="verse-heading"><h3 id="topic-11-verse-02-title">요한일서 2:16-17</h3><a class="verse-link" href="#topic-11-verse-02" aria-label="요한일서 2:16-17 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="16절">16</span>이는 세상에 있는 모든 것이 육신의 정욕과 안목의 정욕과 이생의 자랑이니 다 아버지께로부터 온 것이 아니요 세상으로부터 온 것이라</p>
+<p class="passage"><span class="verse-number" aria-label="17절">17</span>이 세상도, 그 정욕도 지나가되 오직 하나님의 뜻을 행하는 자는 영원히 거하느니라</p>
+</article>
+<article class="verse" id="topic-11-verse-03" aria-labelledby="topic-11-verse-03-title"><div class="verse-heading"><h3 id="topic-11-verse-03-title">마태복음 4:10</h3><a class="verse-link" href="#topic-11-verse-03" aria-label="마태복음 4:10 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="10절">10</span>이에 예수께서 말씀하시되 사탄아 물러가라 기록되었으되 주 너의 하나님께 경배하고 다만 그를 섬기라 하였느니라</p>
+</article>
+<div class="topic-bottom"><a href="#top">목차로 ↑</a></div></section>
+<section class="topic" id="topic-12" aria-labelledby="topic-12-title">
+<header class="topic-header"><span class="chapter-number">12 / 13</span><h2 id="topic-12-title">사랑·공동체·서로 돌봄</h2></header>
+<article class="verse" id="topic-12-verse-01" aria-labelledby="topic-12-verse-01-title"><div class="verse-heading"><h3 id="topic-12-verse-01-title">요한복음 13:34-35</h3><a class="verse-link" href="#topic-12-verse-01" aria-label="요한복음 13:34-35 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="34절">34</span>새 계명을 너희에게 주노니 서로 사랑하라 내가 너희를 사랑한 것 같이 너희도 서로 사랑하라</p>
+<p class="passage"><span class="verse-number" aria-label="35절">35</span>너희가 서로 사랑하면 이로써 모든 사람이 너희가 내 제자인 줄 알리라</p>
+</article>
+<article class="verse" id="topic-12-verse-02" aria-labelledby="topic-12-verse-02-title"><div class="verse-heading"><h3 id="topic-12-verse-02-title">갈라디아서 6:2</h3><a class="verse-link" href="#topic-12-verse-02" aria-label="갈라디아서 6:2 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="2절">2</span>너희가 짐을 서로 지라 그리하여 그리스도의 법을 성취하라</p>
+</article>
+<article class="verse" id="topic-12-verse-03" aria-labelledby="topic-12-verse-03-title"><div class="verse-heading"><h3 id="topic-12-verse-03-title">히브리서 10:24-25</h3><a class="verse-link" href="#topic-12-verse-03" aria-label="히브리서 10:24-25 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="24절">24</span>서로 돌아보아 사랑과 선행을 격려하며</p>
+<p class="passage"><span class="verse-number" aria-label="25절">25</span>모이기를 폐하는 어떤 사람들의 습관과 같이 하지 말고 오직 권하여 그 날이 가까움을 볼수록 더욱 그리하자</p>
+</article>
+<div class="topic-bottom"><a href="#top">목차로 ↑</a></div></section>
+<section class="topic" id="topic-13" aria-labelledby="topic-13-title">
+<header class="topic-header"><span class="chapter-number">13 / 13</span><h2 id="topic-13-title">영적 전투·깨어 있음·시험 중의 도움</h2></header>
+<article class="verse" id="topic-13-verse-01" aria-labelledby="topic-13-verse-01-title"><div class="verse-heading"><h3 id="topic-13-verse-01-title">에베소서 6:10-11</h3><a class="verse-link" href="#topic-13-verse-01" aria-label="에베소서 6:10-11 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="10절">10</span>끝으로 너희가 주 안에서와 그 힘의 능력으로 강건하여지고</p>
+<p class="passage"><span class="verse-number" aria-label="11절">11</span>마귀의 간계를 능히 대적하기 위하여 하나님의 전신 갑주를 입으라</p>
+</article>
+<article class="verse" id="topic-13-verse-02" aria-labelledby="topic-13-verse-02-title"><div class="verse-heading"><h3 id="topic-13-verse-02-title">베드로전서 5:8-9</h3><a class="verse-link" href="#topic-13-verse-02" aria-label="베드로전서 5:8-9 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="8절">8</span>근신하라 깨어라 너희 대적 마귀가 우는 사자 같이 두루 다니며 삼킬 자를 찾나니</p>
+<p class="passage"><span class="verse-number" aria-label="9절">9</span>너희는 믿음을 굳건하게 하여 그를 대적하라 이는 세상에 있는 너희 형제들도 동일한 고난을 당하는 줄을 앎이라</p>
+</article>
+<article class="verse" id="topic-13-verse-03" aria-labelledby="topic-13-verse-03-title"><div class="verse-heading"><h3 id="topic-13-verse-03-title">히브리서 2:18</h3><a class="verse-link" href="#topic-13-verse-03" aria-label="히브리서 2:18 바로가기">#</a></div>
+<p class="passage"><span class="verse-number" aria-label="18절">18</span>그가 시험을 받아 고난을 당하셨은즉 시험 받는 자들을 능히 도우실 수 있느니라</p>
+</article>
+<div class="topic-bottom"><a href="#top">목차로 ↑</a></div></section>
+      <footer><p>주제별 말씀 모음</p><p>원본 PDF의 주제와 말씀 순서를 따릅니다.</p><p><a href="#top">처음으로 ↑</a></p></footer>
+    </main>
+  </div>
+  <script>
+    (() => {
+      'use strict';
+      const sizes = [1.0625, 1.1875, 1.375, 1.5625];
+      let sizeIndex = 1;
+      try {
+        const saved = localStorage.getItem('scripture-font-size');
+        if (saved !== null && /^[0-3]$/.test(saved)) sizeIndex = Number(saved);
+      } catch (_) {}
+      const smaller = document.getElementById('font-smaller');
+      const larger = document.getElementById('font-larger');
+      const applySize = (announce) => {
+        document.documentElement.style.setProperty('--verse-size', sizes[sizeIndex] + 'rem');
+        smaller.disabled = sizeIndex === 0;
+        larger.disabled = sizeIndex === sizes.length - 1;
+        if (announce) document.getElementById('font-status').textContent = '글자 크기 ' + (sizeIndex + 1) + '단계';
+      };
+      document.querySelector('.font-controls').hidden = false;
+      const changeSize = (delta) => {
+        sizeIndex = Math.max(0, Math.min(sizes.length - 1, sizeIndex + delta));
+        applySize(true);
+        try { localStorage.setItem('scripture-font-size', String(sizeIndex)); } catch (_) {}
+      };
+      smaller.addEventListener('click', () => changeSize(-1));
+      larger.addEventListener('click', () => changeSize(1));
+      applySize(false);
+      const mobileToc = document.getElementById('mobile-toc');
+      document.querySelectorAll('.toc a').forEach(link => {
+        link.addEventListener('click', () => { mobileToc.open = false; });
+      });
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && mobileToc.open) {
+          mobileToc.open = false;
+          mobileToc.querySelector('summary').focus();
+        }
+      });
+      const topics = [...document.querySelectorAll('.topic')];
+      const tocLinks = [...document.querySelectorAll('.toc a')];
+      let scheduled = false;
+      const markCurrentTopic = () => {
+        const marker = Math.min(180, window.innerHeight / 3);
+        let current = topics[0];
+        for (const topic of topics) {
+          if (topic.getBoundingClientRect().top <= marker) current = topic;
+          else break;
+        }
+        for (const link of tocLinks) {
+          if (link.hash === '#' + current.id) link.setAttribute('aria-current', 'location');
+          else link.removeAttribute('aria-current');
+        }
+        scheduled = false;
+      };
+      window.addEventListener('scroll', () => {
+        if (!scheduled) { scheduled = true; requestAnimationFrame(markCurrentTopic); }
+      }, {passive:true});
+      markCurrentTopic();
+    })();
+  </script>
+</body>
+</html>
