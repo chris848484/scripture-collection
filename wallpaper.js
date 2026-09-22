@@ -1,8 +1,12 @@
 /* Scripture wallpaper rendering. Inlined into index.html by the build script. */
 window.ScriptureWallpaper = (() => {
   'use strict';
-  const WIDTH = 1080;
-  const HEIGHT = 1920;
+  const WIDTH = 1440;
+  const HEIGHT = 3120;
+  const DESIGN_WIDTH = 1080;
+  const DESIGN_HEIGHT = HEIGHT * DESIGN_WIDTH / WIDTH;
+  const BODY_TOP = 520;
+  const BODY_HEIGHT = 1000;
   const FONT = '"Noto Serif KR", "AppleMyungjo", "Batang", "Malgun Gothic", serif';
   let backgroundPromise;
   function loadBackground() {
@@ -53,7 +57,7 @@ window.ScriptureWallpaper = (() => {
       const paragraphGap = Math.round(fontSize * 0.65);
       const bodyHeight = paragraphs.reduce((sum, p) => sum + p.lines.length * lineHeight, 0)
         + Math.max(0, paragraphs.length - 1) * paragraphGap;
-      if (bodyHeight <= 870) return { paragraphs, fontSize, lineHeight, paragraphGap, bodyHeight, textWidth };
+      if (bodyHeight <= BODY_HEIGHT) return { paragraphs, fontSize, lineHeight, paragraphGap, bodyHeight, textWidth };
     }
     throw new Error('말씀이 너무 길어 한 장에 담을 수 없습니다.');
   }
@@ -66,21 +70,23 @@ window.ScriptureWallpaper = (() => {
     canvas.height = HEIGHT;
     const context = canvas.getContext('2d');
     if (!context) throw new Error('이 브라우저에서는 이미지를 만들 수 없습니다.');
+    // Render at Galaxy S25 Ultra resolution, preserving the same readable type scale.
+    context.scale(WIDTH / DESIGN_WIDTH, WIDTH / DESIGN_WIDTH);
     const textLayout = layout(context, scripture.passages);
     const { paragraphs, fontSize, lineHeight, paragraphGap, bodyHeight } = textLayout;
-    const scale = Math.max(WIDTH / background.naturalWidth, HEIGHT / background.naturalHeight);
-    context.drawImage(background, (WIDTH - background.naturalWidth * scale) / 2, (HEIGHT - background.naturalHeight * scale) / 2, background.naturalWidth * scale, background.naturalHeight * scale);
-    const gradient = context.createLinearGradient(0, 0, 0, HEIGHT);
+    const scale = Math.max(DESIGN_WIDTH / background.naturalWidth, DESIGN_HEIGHT / background.naturalHeight);
+    context.drawImage(background, (DESIGN_WIDTH - background.naturalWidth * scale) / 2, (DESIGN_HEIGHT - background.naturalHeight * scale) / 2, background.naturalWidth * scale, background.naturalHeight * scale);
+    const gradient = context.createLinearGradient(0, 0, 0, DESIGN_HEIGHT);
     gradient.addColorStop(0, 'rgba(7,16,32,0.05)');
     gradient.addColorStop(0.2, 'rgba(7,16,32,0.22)');
     gradient.addColorStop(0.73, 'rgba(7,16,32,0.22)');
     gradient.addColorStop(0.85, 'rgba(7,16,32,0.02)');
     gradient.addColorStop(1, 'rgba(7,16,32,0.02)');
     context.fillStyle = gradient;
-    context.fillRect(0, 0, WIDTH, HEIGHT);
+    context.fillRect(0, 0, DESIGN_WIDTH, DESIGN_HEIGHT);
 
     // Keep the top clear for a lock-screen clock and the bottom for phone controls.
-    const top = 400 + (870 - bodyHeight) / 2;
+    const top = BODY_TOP + (BODY_HEIGHT - bodyHeight) / 2;
     const x = 156;
     let y = top;
     context.textBaseline = 'top';
