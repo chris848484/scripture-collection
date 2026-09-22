@@ -28,7 +28,7 @@ def build():
                 last_subcategory = subcategory
             verse_id = f'{section_id}-verse-{verse_index:02d}'
             ref = escape(verse['reference'])
-            parts.append(f'<article class="verse" id="{verse_id}" aria-labelledby="{verse_id}-title"><div class="verse-heading"><h3 id="{verse_id}-title">{ref}</h3><div class="verse-tools"><button class="copy-verse" type="button" aria-label="{ref} 말씀 전체 복사 및 선택" aria-pressed="false" hidden>복사</button><a class="verse-link" href="#{verse_id}" aria-label="{ref} 바로가기">#</a></div></div>')
+            parts.append(f'<article class="verse" id="{verse_id}" data-wallpaper="wallpapers/verse-{verse_count:02d}.png" aria-labelledby="{verse_id}-title"><div class="verse-heading"><h3 id="{verse_id}-title">{ref}</h3><div class="verse-tools"><button class="copy-verse" type="button" aria-label="{ref} 말씀 전체 복사 및 선택" aria-pressed="false" hidden>복사</button><a class="verse-link" href="#{verse_id}" aria-label="{ref} 바로가기">#</a></div></div>')
             for passage in verse['passages']:
                 number = escape(str(passage['number']))
                 text = escape(passage['text'])
