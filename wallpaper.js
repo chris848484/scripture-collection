@@ -15,8 +15,9 @@ window.ScriptureWallpaper = (() => {
         const source = document.getElementById('wallpaper-background-data')?.textContent.trim();
         if (!source) { reject(new Error('배경 이미지를 찾지 못했습니다.')); return; }
         const background = new Image();
-        background.onload = () => resolve(background);
-        background.onerror = () => reject(new Error('배경 이미지를 불러오지 못했습니다.'));
+        const timer = setTimeout(() => reject(new Error('배경 이미지 응답이 늦습니다. 다시 시도해 주세요.')), 10000);
+        background.onload = () => { clearTimeout(timer); resolve(background); };
+        background.onerror = () => { clearTimeout(timer); reject(new Error('배경 이미지를 불러오지 못했습니다.')); };
         background.src = source;
       }).catch(error => { backgroundPromise = null; throw error; });
     }
@@ -63,7 +64,6 @@ window.ScriptureWallpaper = (() => {
   }
 
   async function render(scripture) {
-    if (document.fonts?.ready) await document.fonts.ready;
     const background = await loadBackground();
     const canvas = document.createElement('canvas');
     canvas.width = WIDTH;
@@ -111,7 +111,11 @@ window.ScriptureWallpaper = (() => {
     context.fillText(scripture.reference, x, referenceY + 33);
 
     const blob = await new Promise((resolve, reject) => {
-      canvas.toBlob(value => value ? resolve(value) : reject(new Error('이미지를 저장하지 못했습니다.')), 'image/png');
+      const timer = setTimeout(() => reject(new Error('이미지 생성이 지연되고 있습니다. 다시 시도해 주세요.')), 10000);
+      canvas.toBlob(value => {
+        clearTimeout(timer);
+        value ? resolve(value) : reject(new Error('이미지를 저장하지 못했습니다.'));
+      }, 'image/png');
     });
     return { blob, width: WIDTH, height: HEIGHT, layout: textLayout };
   }

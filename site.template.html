@@ -93,9 +93,10 @@
     .dialog-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
     .dialog-heading h2 { font-size:1.25rem; }
     .dialog-reference { margin:2px 0 15px; color:var(--muted); font-size:.875rem; }
-    .wallpaper-preview { display:block; width:auto; height:auto; max-width:100%; max-height:49dvh; margin:0 auto; border-radius:10px; background:#243b5c; box-shadow:0 8px 24px #14243e20; }
+    .wallpaper-preview { display:block; width:auto; height:auto; aspect-ratio:6/13; max-width:100%; max-height:49dvh; margin:0 auto; border-radius:10px; background:#243b5c; box-shadow:0 8px 24px #14243e20; transform:translateZ(0); }
     .dialog-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
-    .dialog-actions .button { flex:1; }
+    .dialog-actions .button { flex:1 1 calc(50% - 5px); }
+    #share-wallpaper { flex-basis:100%; }
     .save-help { color:var(--muted); font-size:.875rem; line-height:1.75; margin:13px 0 0; }
     .generation-status { padding:48px 12px; text-align:center; font-size:1rem; color:var(--muted); }
     .manual-copy-text { width:100%; height:240px; margin-top:14px; border:1px solid var(--line); border-radius:8px; padding:12px; font:1rem/1.8 inherit; resize:vertical; }
@@ -199,11 +200,12 @@
   <dialog class="reader-dialog" id="wallpaper-dialog" aria-labelledby="wallpaper-title">
     <div class="dialog-heading"><h2 id="wallpaper-title">말씀 배경화면</h2><button type="button" class="icon-button" id="close-wallpaper" aria-label="배경화면 닫기">×</button></div>
     <p class="dialog-reference" id="wallpaper-reference"></p>
-    <p class="generation-status" id="generation-status" role="status">이미지를 만드는 중입니다…</p>
-    <img class="wallpaper-preview" id="wallpaper-preview" alt="선택한 말씀이 적힌 세로 배경화면" hidden>
+    <p class="generation-status" id="generation-status" role="status">이미지를 불러오는 중입니다…</p>
+    <button type="button" class="button secondary" id="retry-wallpaper" hidden>다시 시도</button>
+    <img class="wallpaper-preview" id="wallpaper-preview" width="1440" height="3120" loading="eager" alt="선택한 말씀이 적힌 세로 배경화면" hidden>
     <div id="wallpaper-result" hidden>
-      <div class="dialog-actions"><a class="button" id="download-wallpaper" download>PNG 저장</a><button class="button secondary" type="button" id="share-wallpaper" hidden>공유·사진에 저장</button></div>
-      <p class="save-help">갤럭시 S25 울트라 · 1440 × 3120<br>저장이 안 되면 이미지를 길게 눌러 저장하세요. 저장한 사진은 휴대폰에서 배경화면으로 설정할 수 있습니다.</p>
+      <div class="dialog-actions"><a class="button" id="download-wallpaper" download="verse.png" type="image/png">PNG 저장</a><a class="button secondary" id="open-wallpaper" target="_blank" rel="noopener">이미지 열기</a><button class="button secondary" type="button" id="share-wallpaper" hidden>공유·사진에 저장</button></div>
+      <p class="save-help">갤럭시 S25 울트라 · 1440 × 3120<br>저장이 안 되면 ‘이미지 열기’ 후 사진을 길게 눌러 저장하세요. 카카오톡에서는 메뉴의 ‘다른 브라우저로 열기’도 이용할 수 있습니다.</p>
       <p class="save-help" id="share-status" role="status"></p>
     </div>
   </dialog>
@@ -276,16 +278,19 @@
       const toast = document.getElementById('copy-status');
       const wallpaperDialog = document.getElementById('wallpaper-dialog');
       const manualDialog = document.getElementById('manual-copy-dialog');
-      const preview = document.getElementById('wallpaper-preview');
+      let preview = document.getElementById('wallpaper-preview');
       const result = document.getElementById('wallpaper-result');
       const generationStatus = document.getElementById('generation-status');
       const download = document.getElementById('download-wallpaper');
+      const openImage = document.getElementById('open-wallpaper');
+      const retry = document.getElementById('retry-wallpaper');
       const share = document.getElementById('share-wallpaper');
       let selected = null;
       let copyRequest = 0;
       let generation = 0;
       let imageURL = null;
       let imageFile = null;
+      let imageRequest = null;
       let toastTimeout;
 
       function notify(message) {
@@ -303,7 +308,7 @@
           number.remove();
           return { number: verseNumber, text: copy.textContent.trim() };
         });
-        return { reference, passages, text: reference + '\n' + passages.map(p => p.number + ' ' + p.text).join('\n') };
+        return { reference, passages, wallpaper: article.dataset.wallpaper, text: reference + '\n' + passages.map(p => p.number + ' ' + p.text).join('\n') };
       }
       function legacyCopy(text) {
         const previousFocus = document.activeElement;
@@ -382,49 +387,110 @@
         updateBarHeight();
       });
       function releaseImage() {
+        imageRequest?.abort();
+        imageRequest = null;
         preview.removeAttribute('src');
         download.removeAttribute('href');
+        openImage.removeAttribute('href');
         if (imageURL) URL.revokeObjectURL(imageURL);
         imageURL = null;
         imageFile = null;
       }
-      document.getElementById('make-wallpaper').addEventListener('click', async () => {
+      function prepareImage(source, signal) {
+        return new Promise((resolve, reject) => {
+          const image = new Image(1440, 3120);
+          image.loading = 'eager';
+          image.decoding = 'async';
+          let settled = false;
+          const finish = error => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            signal.removeEventListener('abort', cancel);
+            image.onload = image.onerror = null;
+            if (error) { image.removeAttribute('src'); reject(error); }
+            else resolve(image);
+          };
+          const cancel = () => finish(new DOMException('Image request cancelled', 'AbortError'));
+          const timer = setTimeout(() => finish(new Error('이미지 응답이 늦습니다. 연결을 확인하고 다시 시도해 주세요.')), 15000);
+          signal.addEventListener('abort', cancel, { once:true });
+          image.onload = async () => {
+            try {
+              if (image.decode) await image.decode();
+              if (image.naturalWidth !== 1440 || image.naturalHeight !== 3120) throw new Error('이미지 크기가 올바르지 않습니다.');
+              finish();
+            } catch (error) { finish(error); }
+          };
+          image.onerror = () => finish(new Error('이미지를 불러오지 못했습니다.'));
+          if (signal.aborted) cancel();
+          else image.src = source;
+        });
+      }
+      async function makeWallpaper() {
         if (!selected) return;
         ++copyRequest;
         const scripture = selected.scripture;
         const currentGeneration = ++generation;
         releaseImage();
+        const controller = new AbortController();
+        imageRequest = controller;
         preview.hidden = true;
         result.hidden = true;
         share.hidden = true;
+        retry.hidden = true;
         generationStatus.hidden = false;
-        generationStatus.textContent = '이미지를 만드는 중입니다…';
+        generationStatus.textContent = '이미지를 불러오는 중입니다…';
         document.getElementById('share-status').textContent = '';
         document.getElementById('wallpaper-reference').textContent = scripture.reference;
-        wallpaperDialog.showModal();
+        if (!wallpaperDialog.open) wallpaperDialog.showModal();
+        wallpaperDialog.scrollTop = 0;
         document.body.classList.add('dialog-open');
         toast.hidden = true;
         try {
-          const rendered = await window.ScriptureWallpaper.render(scripture);
+          let source;
+          let blob = null;
+          if (/^https?:$/.test(location.protocol)) {
+            // Real PNG URLs can be downloaded by an in-app browser's native download manager.
+            source = new URL(scripture.wallpaper, document.baseURI).href;
+          } else {
+            const rendered = await window.ScriptureWallpaper.render(scripture);
+            if (currentGeneration !== generation || !wallpaperDialog.open) return;
+            blob = rendered.blob;
+            imageURL = URL.createObjectURL(blob);
+            source = imageURL;
+          }
+          const readyImage = await prepareImage(source, controller.signal);
           if (currentGeneration !== generation || !wallpaperDialog.open) return;
-          imageURL = URL.createObjectURL(rendered.blob);
-          const filename = scripture.reference.replace(/[^가-힣a-zA-Z0-9-]/g, '_') + '_S25_Ultra_배경화면.png';
-          preview.src = imageURL;
-          preview.alt = scripture.reference + ' 말씀 전체가 기록된 휴대폰 배경화면';
-          download.href = imageURL;
-          download.download = filename;
-          try {
-            imageFile = new File([rendered.blob], filename, { type:'image/png' });
-            share.hidden = !(navigator.share && navigator.canShare?.({ files:[imageFile] }));
-          } catch (_) { imageFile = null; }
-          preview.hidden = false;
+          readyImage.id = 'wallpaper-preview';
+          readyImage.className = 'wallpaper-preview';
+          readyImage.alt = scripture.reference + ' 말씀 전체가 기록된 휴대폰 배경화면';
+          preview.replaceWith(readyImage);
+          preview = readyImage;
+          download.href = source;
+          download.download = 'verse.png';
+          openImage.href = source;
           generationStatus.hidden = true;
           result.hidden = false;
+          // Prepare optional file sharing without delaying the preview or PNG download.
+          if (navigator.share && navigator.canShare) {
+            const fileBlob = blob ? Promise.resolve(blob) : fetch(source, { signal:controller.signal }).then(response => {
+              if (!response.ok) throw new Error('Image request failed');
+              return response.blob();
+            });
+            fileBlob.then(value => {
+              if (currentGeneration !== generation || !wallpaperDialog.open) return;
+              imageFile = new File([value], 'verse.png', { type:'image/png' });
+              share.hidden = !navigator.canShare({ files:[imageFile] });
+            }).catch(() => {});
+          }
         } catch (error) {
           if (currentGeneration !== generation || !wallpaperDialog.open) return;
-          generationStatus.textContent = '이미지를 만들지 못했습니다. 창을 닫고 다시 시도해 주세요.';
+          generationStatus.textContent = '이미지를 불러오지 못했습니다. 연결을 확인하고 다시 시도해 주세요.';
+          retry.hidden = false;
         }
-      });
+      }
+      document.getElementById('make-wallpaper').addEventListener('click', makeWallpaper);
+      retry.addEventListener('click', makeWallpaper);
       share.addEventListener('click', async () => {
         if (!imageFile) return;
         const sharedFile = imageFile;
