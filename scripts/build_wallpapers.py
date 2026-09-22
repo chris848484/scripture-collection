@@ -19,6 +19,7 @@ from pathlib import Path
 import re
 import struct
 import tempfile
+import time
 import zlib
 
 
@@ -153,7 +154,15 @@ def save_png(filename: str, content: bytes) -> int:
         with tempfile.NamedTemporaryFile(dir=folder, prefix=".wallpaper-", suffix=".tmp", delete=False) as output:
             temporary = Path(output.name)
             output.write(content)
-        os.replace(temporary, target)
+        for attempt in range(5):
+            try:
+                os.replace(temporary, target)
+                break
+            except PermissionError:
+                if attempt == 4:
+                    raise
+                # Windows scanners can briefly hold the destination file open.
+                time.sleep(0.1 * (attempt + 1))
         temporary = None
     finally:
         if temporary is not None:
